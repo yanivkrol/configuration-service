@@ -1,5 +1,13 @@
 import warnings
+from collections import defaultdict
+from typing import List
+
+import pandas as pd
+
+from components.filter_dataframe import filteref_df
+
 warnings.simplefilter(action='ignore', category=FutureWarning)
+import confiugrations
 
 import streamlit as st
 import streamlit_antd_components as sac
@@ -11,8 +19,8 @@ class StateKey(Enum):
 
 
 
-def get_all(conn, table):
-    df = conn.query(f"select * from {table} limit 50", ttl=60)
+def get_data(conn, table):
+    df = conn.query(f"select * from {table} limit 10", ttl=60)
     return df
 
 
@@ -67,101 +75,138 @@ def toggle_state(key):
     st.session_state[key] = not st.session_state[key]
 
 
-def get_state_key(service, table, key):
-    return f"{service}:{table}:{key}"
+def get_state_key(configuration: str, key):
+    return f"{configuration}:{key}"
+
+
+def init_state(key, value):
+    if key not in st.session_state:
+        st.session_state[key] = value
+
+
+@st.cache_resource(ttl=60)
+def get_db_connections(configuration: str):
+    conns = {}
+    for table in confiugrations.all_by_name[configuration].tables:
+        service = table['service']
+        if service not in conns:
+            conns[service] = st.experimental_connection(
+                f"{service}_db",
+                type="sql"
+            )
+    return conns
+
+
+def setup_sidebar_controls():
+    with st.sidebar.container():
+        st.title("Configuration Service")
+        st.divider()
+
+        st.selectbox(
+            label="Company:",
+            options=["Natural Intelligence", "Cappsool", "Better Impression"],
+            key="company"
+        )
+
+        configuration_choice = st.selectbox(
+            label="Configuration:",
+            options=confiugrations.all_by_name.keys(),
+        )
+        st.session_state["configuration"] = confiugrations.all_by_name[configuration_choice]
+
+
+def setup_df_controls(configuration):
+    control_btns_cols = st.columns((1, 6.8))
+
+    state_key_editing_enabled = get_state_key(configuration.name, "editing_enabled")
+    init_state(state_key_editing_enabled, False)
+    button_text = "Enable editing" if not st.session_state[state_key_editing_enabled] else "Disable editing"
+    button_type = "primary" if not st.session_state[state_key_editing_enabled] else "secondary"
+    control_btns_cols[0].button(button_text, on_click=lambda: toggle_state(state_key_editing_enabled), type=button_type)
+
+    state_key_filtering_enabled = get_state_key(configuration.name, "filtering_enabled")
+    init_state(state_key_filtering_enabled, False)
+    button_text = "Filter" if not st.session_state[state_key_filtering_enabled] else "Remove filters"
+    button_type = "primary" if not st.session_state[state_key_filtering_enabled] else "secondary"
+    control_btns_cols[1].button(button_text, on_click=lambda: toggle_state(state_key_filtering_enabled), type=button_type)
+
+
+def remove_deleted_rows_agg(df: pd.DataFrame, deleted_rows_rec: List[List[int]]):
+    deleted_rows_df = pd.DataFrame()
+    for deleted_rows in deleted_rows_rec:
+        deleted_rows_df = pd.concat([deleted_rows_df, df.iloc[deleted_rows]])
+        df = df.drop(df.index[deleted_rows])
+    return df, deleted_rows_df
+
+
+def debug_state():
+    with st.sidebar.container():
+        st.divider()
+        st.write(st.session_state)
+
 
 def main():
     st.set_page_config(layout="wide")
 
-    for service, service_settings in services.items():
-        service_settings['mysql_conn'] = st.experimental_connection(
-            f"{service.replace('-', '_')}_db",
-            type="sql"
-        )
+    setup_sidebar_controls()
 
-    menu_items = []
-    for service, service_settings in services.items():
-        children = []
-        for table in service_settings['tables'].keys():
-            children.append(sac.MenuItem(f'{service}:{table}', icon='database'))
-        menu_items.append(sac.MenuItem(service_settings['display_name'], icon='gear', children=children))
+    configuration = st.session_state["configuration"]
+    st.title(configuration.name)
+    setup_df_controls(configuration)
+    conns = get_db_connections(configuration.name)
 
-    with st.sidebar.container():
-        st.title("Configuration Service")
-        selected = sac.menu(menu_items, index=0, size='small', indent=12,
-                            open_index=None, open_all=True, return_index=False,
-                            format_func=lambda s: s.split(":")[-1])
+    # -------- display first table --------
 
-    if ":" in selected:
-        service, table = selected.split(":")
-        service_settings = services[service]
-        table_settings = service_settings['tables'][table]
-        st.title(f"{service_settings['display_name']} - {table}")
-        df = get_all(service_settings['mysql_conn'], table)
-        state_key_df = get_state_key(service, table, "df")
-        if state_key_df not in st.session_state:
-            st.session_state[state_key_df] = df
+    table = configuration.tables[0]
+    df = get_data(conns[table['service']], table['name'])
+    # state_key_df = get_state_key(configuration.name, "df")
+    # state_key_df_original = get_state_key(configuration.name, "df_original")
+    # init_state(state_key_df_original, df)
+    # init_state(state_key_df, df)
 
-        state_key_editing_enabled = get_state_key(service, table, "editing_enabled")
-        if state_key_editing_enabled not in st.session_state:
-            st.session_state[state_key_editing_enabled] = False
-        button_text = "Enabled editing" if not st.session_state[state_key_editing_enabled] else "Disable editing"
-        st.button(button_text, on_click=lambda: toggle_state(state_key_editing_enabled))
+    print(df.index)
 
-        state_key_editor = get_state_key(service, table, "data_editor")
-        if state_key_editor in st.session_state:
-            deleted_rows = st.session_state[state_key_editor]["deleted_rows"]
-            if deleted_rows:
-                with st.expander("Deleted rows:", expanded=True):
-                    st.dataframe(
-                        st.session_state[state_key_df].iloc[deleted_rows],
-                        use_container_width=True,
-                        hide_index=True,
-                        column_order=table_settings['column_order'],
-                        column_config=table_settings['column_config'],
-                    )
+    if st.session_state[get_state_key(configuration.name, "filtering_enabled")]:
+        df = filteref_df(df, choice_columns={"resolver_deal_type": ["Sale", "Lead"]})
 
-        # https://docs.streamlit.io/library/advanced-features/dataframes
-        st.session_state[state_key_df] = st.data_editor(
-            st.session_state[state_key_df],
-            use_container_width=True,
-            hide_index=True,
-            disabled=not st.session_state[state_key_editing_enabled],
-            num_rows="dynamic" if st.session_state[state_key_editing_enabled] else "fixed",
-            column_order=table_settings['column_order'],
-            column_config=table_settings['column_config'],
-            key=state_key_editor
-        )
+    state_key_editor = get_state_key(configuration.name, "data_editor")
+    if state_key_editor in st.session_state:
+        deleted_rows = st.session_state[state_key_editor]["deleted_rows"]
+        if deleted_rows:
+            print(deleted_rows)
+            state_key_data_editor_agg = get_state_key(configuration.name, "data_editor_agg")
+            init_state(state_key_data_editor_agg, {
+                "edited_rows": {},
+                "added_rows": [],
+                "deleted_rows": []
+            })
+            st.session_state[state_key_data_editor_agg]["deleted_rows"].append(deleted_rows)
+            df, deleted_rows_df = remove_deleted_rows_agg(df, st.session_state[state_key_data_editor_agg]["deleted_rows"])
+            with st.expander("Rows to delete:", expanded=True):
+                st.dataframe(
+                    deleted_rows_df,
+                    use_container_width=True,
+                    hide_index=True,
+                    # column_order=table_settings['column_order'],
+                    # column_config=table_settings['column_config'],
+                )
 
-        f"df len: {len( st.session_state[state_key_df])}"
+    # https://docs.streamlit.io/library/advanced-features/dataframes
+    st.data_editor(
+        df,
+        use_container_width=True,
+        hide_index=True,
+        disabled=not st.session_state[get_state_key(configuration.name, "editing_enabled")],
+        num_rows="dynamic" if st.session_state[get_state_key(configuration.name, "editing_enabled")] else "fixed",
+        # column_order=table_settings['column_order'],
+        # column_config=table_settings['column_config'],
+        key=state_key_editor
+    )
 
-        st.write(st.session_state[state_key_editor])
+    # f"df len: {len( st.session_state[state_key_df])}"
+
+    st.write(st.session_state[state_key_editor])
 
 
 main()
-
-
-
-
-
-# def show_ui():
-#     st.sidebar.title('Configuration')
-#     st.sidebar.
-#     service = st.sidebar.selectbox('Choose Service', ['Service 1', 'Service 2'])
-#     table = st.sidebar.selectbox('Choose Table', ['users', 'another_table'])
-#
-#     st.title(f'{service} - {table}')
-#
-#     df = read_table(table)
-#     st.write(df)
-#
-# import pandas as pd
-#
-# def read_table(table_name):
-#     conn = sqlite3.connect('example.db')
-#     df = pd.read_sql(f'SELECT * FROM {table_name}', conn)
-#     conn.close()
-#     return df
-#
-#
-# show_ui()
+debug_state()
