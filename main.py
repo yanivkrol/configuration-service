@@ -84,6 +84,13 @@ def init_state(key, value):
         st.session_state[key] = value
 
 
+def init_state_editor_agg(state_key_data_editor_idx: str):
+    init_state(state_key_data_editor_idx, {
+        "edited_idxs": {},
+        "added_idxs": pd.Series([]),
+        "deleted_idxs": pd.Series([])
+    })
+
 @st.cache_resource(ttl=60)
 def get_db_connections(configuration: str):
     conns = {}
@@ -131,14 +138,6 @@ def setup_df_controls(configuration):
     control_btns_cols[1].button(button_text, on_click=lambda: toggle_state(state_key_filtering_enabled), type=button_type)
 
 
-def remove_deleted_rows_agg(df: pd.DataFrame, deleted_rows_rec: List[List[int]]):
-    deleted_rows_df = pd.DataFrame()
-    for deleted_rows in deleted_rows_rec:
-        deleted_rows_df = pd.concat([deleted_rows_df, df.iloc[deleted_rows]])
-        df = df.drop(df.index[deleted_rows])
-    return df, deleted_rows_df
-
-
 def debug_state():
     with st.sidebar.container():
         st.divider()
@@ -159,43 +158,51 @@ def main():
 
     table = configuration.tables[0]
     df = get_data(conns[table['service']], table['name'])
+    df.set_index("s2s_deal_type_mapping_id", inplace=True)
     # state_key_df = get_state_key(configuration.name, "df")
     # state_key_df_original = get_state_key(configuration.name, "df_original")
     # init_state(state_key_df_original, df)
     # init_state(state_key_df, df)
 
-    print(df.index)
-
     if st.session_state[get_state_key(configuration.name, "filtering_enabled")]:
         df = filteref_df(df, choice_columns={"resolver_deal_type": ["Sale", "Lead"]})
 
+    if not st.session_state[get_state_key(configuration.name, "editing_enabled")]:
+        for key in ["data_editor", "data_editor_idx_agg"]:
+            try:
+                del st.session_state[get_state_key(configuration.name, key)]
+            except KeyError:
+                pass
+
     state_key_editor = get_state_key(configuration.name, "data_editor")
-    if state_key_editor in st.session_state:
-        deleted_rows = st.session_state[state_key_editor]["deleted_rows"]
-        if deleted_rows:
-            print(deleted_rows)
-            state_key_data_editor_agg = get_state_key(configuration.name, "data_editor_agg")
-            init_state(state_key_data_editor_agg, {
-                "edited_rows": {},
-                "added_rows": [],
-                "deleted_rows": []
-            })
-            st.session_state[state_key_data_editor_agg]["deleted_rows"].append(deleted_rows)
-            df, deleted_rows_df = remove_deleted_rows_agg(df, st.session_state[state_key_data_editor_agg]["deleted_rows"])
-            with st.expander("Rows to delete:", expanded=True):
-                st.dataframe(
-                    deleted_rows_df,
-                    use_container_width=True,
-                    hide_index=True,
-                    # column_order=table_settings['column_order'],
-                    # column_config=table_settings['column_config'],
-                )
+    state_key_data_editor_idx_agg = get_state_key(configuration.name, "data_editor_idx_agg")
+    if state_key_data_editor_idx_agg in st.session_state or state_key_editor in st.session_state:
+        init_state_editor_agg(state_key_data_editor_idx_agg)
+        deleted_idxs_agg = st.session_state[state_key_data_editor_idx_agg]["deleted_idxs"]
+
+        if state_key_editor in st.session_state:
+            deleted_rows = st.session_state[state_key_editor]["deleted_rows"]
+            if deleted_rows:
+                cut_df = df.drop(deleted_idxs_agg)
+                deleted_idxs_agg = pd.concat([deleted_idxs_agg,pd.Series(cut_df.iloc[deleted_rows].index)])
+                st.session_state[state_key_data_editor_idx_agg]["deleted_idxs"] = deleted_idxs_agg
+
+        df, deleted_rows_df = df.drop(deleted_idxs_agg), df.loc[deleted_idxs_agg]
+        print(df)
+        with st.expander("Rows to delete:", expanded=True):
+            st.dataframe(
+                deleted_rows_df,
+                use_container_width=True,
+                # hide_index=True,
+                # column_order=table_settings['column_order'],
+                # column_config=table_settings['column_config'],
+            )
 
     # https://docs.streamlit.io/library/advanced-features/dataframes
     st.data_editor(
         df,
         use_container_width=True,
-        hide_index=True,
+        # hide_index=True,
         disabled=not st.session_state[get_state_key(configuration.name, "editing_enabled")],
         num_rows="dynamic" if st.session_state[get_state_key(configuration.name, "editing_enabled")] else "fixed",
         # column_order=table_settings['column_order'],
