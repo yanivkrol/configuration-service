@@ -5,7 +5,7 @@ from pandas.api.types import (
 )
 
 
-def filteref_df(
+def filter_df(
         df: pd.DataFrame,
         choice_columns=None
 ) -> pd.DataFrame:
@@ -24,16 +24,14 @@ def filteref_df(
 
     df = df.copy()
 
-    with st.expander("Filters", expanded=True):
-        columns_to_filter = st.multiselect("filters", df.columns,
-                                           placeholder="Columns to filter...",
-                                           label_visibility="collapsed")
-        for column in columns_to_filter:
-            left, right = st.columns((1, 30))
-            left.write("↳")
-
+    with st.sidebar.container():
+        st.write("Filters:")
+        # columns_to_filter = st.multiselect("filters", df.columns,
+        #                                    placeholder="Columns to filter...",
+        #                                    label_visibility="collapsed")
+        for column in df.columns:
             if column in choice_columns:
-                user_choice_input = right.multiselect(
+                user_choice_input = st.multiselect(
                     f"Values for {column}",
                     choice_columns[column],
                 )
@@ -41,7 +39,7 @@ def filteref_df(
                     df = df[df[column].isin(user_choice_input)]
 
             else:
-                user_text_input = right.text_input(f"Substring in {column}")
+                user_text_input = st.text_input(f"Substring in {column}")
                 if user_text_input:
                     user_text_input = user_text_input.strip()
                     if is_numeric_dtype(df[column]):
