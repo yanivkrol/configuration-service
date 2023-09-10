@@ -7,6 +7,7 @@ from pandas.api.types import (
 
 def filter_df(
         df: pd.DataFrame,
+        column_order: list = None,
         choice_columns=None
 ) -> pd.DataFrame:
     """
@@ -19,6 +20,8 @@ def filter_df(
     Returns:
         pd.DataFrame: Filtered dataframe
     """
+    if column_order is None:
+        column_order = df.columns
     if choice_columns is None:
         choice_columns = {}
 
@@ -29,7 +32,7 @@ def filter_df(
         # columns_to_filter = st.multiselect("filters", df.columns,
         #                                    placeholder="Columns to filter...",
         #                                    label_visibility="collapsed")
-        for column in df.columns:
+        for column in column_order:
             if column in choice_columns:
                 user_choice_input = st.multiselect(
                     f"Values for {column}",

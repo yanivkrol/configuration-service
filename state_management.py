@@ -10,7 +10,6 @@ class _StateKey(Enum):
     EDITING_ENABLED = auto()
     SAVE_CLICKED = auto()
     SAVE_CONFIRMED = auto()
-    DF = auto()
     DATA_EDITOR = auto()
 
 
