@@ -4,3 +4,4 @@ streamlit-modal
 sqlalchemy~=2.0.20
 mysqlclient
 pandas~=2.1.0
+flask
