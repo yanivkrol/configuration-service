@@ -11,6 +11,7 @@ class _StateKey(Enum):
     EDITING = auto()
     DATA_EDITOR = auto()
     ADDING_NEW = auto()
+    NEW_CONFIGURATION = auto()
     NEW_DATA = auto()
     CONFIRMING_SAVE = auto()
     CONFIRMED_SAVE = auto()
@@ -48,6 +49,7 @@ def reset_main_section_state():
     set_state(State.EDITING, False)
     del_state(State.DATA_EDITOR)
     set_state(State.ADDING_NEW, False)
+    set_state(State.NEW_CONFIGURATION, None)
     set_state(State.NEW_DATA, [])
     set_state(State.CONFIRMING_SAVE, False)
     set_state(State.CONFIRMED_SAVE, False)
@@ -56,15 +58,10 @@ def reset_main_section_state():
 def init_default_states():
     init_state(State.EDITING, False)
     init_state(State.ADDING_NEW, False)
+    set_state(State.NEW_CONFIGURATION, None)
     init_state(State.NEW_DATA, [])
     init_state(State.CONFIRMING_SAVE, False)
     init_state(State.CONFIRMED_SAVE, False)
-
-
-def clear_add_new_states():
-    for k in st.session_state:
-        if k.startswith("add_new_"):
-            del st.session_state[k]
 
 
 def clear_outdated_data_editor_edits(df: pd.DataFrame) -> None:

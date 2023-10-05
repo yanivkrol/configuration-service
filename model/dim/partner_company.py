@@ -1,6 +1,5 @@
 from sqlalchemy import Column, String, BigInteger
 
-from model.dim.base_dim import BaseDim
 from model.serializable_model import SerializableModel
 
 

@@ -1,8 +1,7 @@
 from sqlalchemy import Integer, String, Column, UniqueConstraint, Boolean
 
-from model.configuration.base_configuration import BaseConfiguration
-
 from model.serializable_model import SerializableModel
+
 
 class GoogleExternalProduct(SerializableModel):
     __tablename__ = 'configuration_google_external_product'

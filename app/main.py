@@ -1,23 +1,17 @@
 import warnings
-from collections import defaultdict
+warnings.simplefilter(action='ignore', category=FutureWarning)
+import streamlit as st
+st.set_page_config(layout="wide")
 
-import pandas as pd
-from pandas import DataFrame
-
-from configuration_frontend.base_configuration_frontend import BaseConfigurationFrontend
 from configurations import get_all_configurations
 
-warnings.simplefilter(action='ignore', category=FutureWarning)
 
-import streamlit as st
 from st_oauth import st_oauth
 
 import process_changes
 
 import configuration_frontend
 import repository.configuration as configuration_repository
-from repository.configuration.configuration_repository import ConfigurationRepository
-from components.filter_dataframe import filter_df
 from state_management import *
 
 
@@ -26,12 +20,6 @@ def is_data_edited():
     if data_editor and bool(data_editor["edited_rows"] or data_editor["deleted_rows"]):
         return True
     return False
-
-
-def load_df(c_frontend: BaseConfigurationFrontend, c_repository: ConfigurationRepository):
-    df = c_repository.get_as_df(limit=QUERY_SIZE_LIMIT)
-    df = filter_df(df, c_frontend)
-    return df
 
 
 def is_disabled_btn_enable_editing():
@@ -71,7 +59,6 @@ def clicked_btn_save():
 
 def cancel_add_new():
     set_state(State.ADDING_NEW, False)
-    clear_add_new_states()
 
 
 def clicked_btn_cancel_add_new():
@@ -87,28 +74,24 @@ def clicked_btn_continue_save(df):
     with st.spinner("Saving..."):
         data_editor = get_state(State.DATA_EDITOR)
         new_data = get_state(State.NEW_DATA)
-        process_changes.apply_changes(c_repository, df, data_editor["deleted_rows"], data_editor["edited_rows"], new_data)
+        process_changes.apply_changes(c_repository, df, data_editor["deleted_rows"], data_editor["edited_rows"],
+                                      new_data)
         st.cache_data.clear()  # TODO maybe we will have api to clear specific keys in the future
         reset_main_section_state()
         st.markdown("""<div style="margin-top: 25px;"></div>""", unsafe_allow_html=True)
         st.success("Saved successfully!", icon="🚀")
+        st.warning("Changes may take some time to take effect.", icon="⚠")
 
 
 def is_disabled_btn_add_add_new():
-    if all(v for k, v in st.session_state.items() if k.startswith("add_new_")):
+    if get_state(State.NEW_CONFIGURATION):
         return False
     return True
 
 
 def clicked_btn_add_add_new():
     set_state(State.ADDING_NEW, False)
-
-    new_data = {}
-    for k in st.session_state:
-        if k.startswith("add_new_"):
-            new_data[k.replace("add_new_", "")] = st.session_state.pop(k)
-
-    set_state(State.NEW_DATA, [*get_state(State.NEW_DATA), new_data])
+    get_state(State.NEW_DATA).append(get_state(State.NEW_CONFIGURATION))
 
 
 companies = [
@@ -118,9 +101,15 @@ companies = [
 ]
 QUERY_SIZE_LIMIT = 10
 
-st.set_page_config(layout="wide")
 
-user_email = st_oauth(label='Login with Okta') if st.secrets['use_login'] else "john.doe@naturalint.com"
+
+user_email = st_oauth(label='Login with Okta') if st.secrets['use_login'] else "john.doe@naturalint.com"  # TODO env var
+
+init_default_states()
+
+# # When a filter is applied after editing, the data editor is reset
+# if get_state(State.EDITING) and not is_data_edited():
+#     set_state(State.EDITING, False)
 
 # remove margin
 st.markdown("""
@@ -131,17 +120,13 @@ st.markdown("""
   </style>
 """, unsafe_allow_html=True)
 
-init_default_states()
-# if not get_state(State.EDITING_ENABLED):
-#     reset_main_section_state()
-
 # ------------------ sidebar ------------------
 
 
 with st.sidebar.container():
     st.title("Configuration Service")
     name, domain = user_email.split('@')
-    st.write(f"Hello {name.split('.')[0].title()}!")
+    st.write(f"Hello {name.split('.')[0].title()}! 👋🏼")
 
     st.divider()
 
@@ -150,13 +135,14 @@ with st.sidebar.container():
         options=companies,
         format_func=lambda c: c['full'],
         index=[c['domain'] for c in companies].index(domain),
+        on_change=reset_main_section_state,
         key=State.COMPANY
     )
 
     st.selectbox(
         label="Configuration:",
         options=get_all_configurations(),
-        format_func=lambda x: configuration_frontend.get_frontend(x).name,
+        format_func=lambda c: configuration_frontend.get_frontend(c).label,
         on_change=reset_main_section_state,
         key=State.CONFIGURATION
     )
@@ -169,15 +155,29 @@ with st.sidebar.container():
 c_frontend = configuration_frontend.get_frontend(get_state(State.CONFIGURATION))
 c_repository = configuration_repository.get_repository(get_state(State.CONFIGURATION))
 
-st.title(c_frontend.name)
-df = load_df(c_frontend, c_repository)
+st.title(c_frontend.label)
+
+full_df = c_repository.get_as_df(limit=QUERY_SIZE_LIMIT)
+with st.sidebar.container():
+    if not get_state(State.EDITING):
+        "Filters:"
+        filtered_df = c_frontend.render_filters(full_df)
+    else:
+        "Filtering is disabled when editing. Use filtering before starting to edit."
+        filtered_df = full_df.copy()
+
 
 # ------------------ control buttons ------------------
 
 
 col1, col2, margin, col3 = st.columns((1, 1, 5, 1))
 
-button_text = "Enable editing" if not get_state(State.EDITING) else "Disable editing"
+if not get_state(State.EDITING):
+    button_text = "Enable editing"
+elif is_data_edited():
+    button_text = "Undo changes"
+else:
+    button_text = "Disable editing"
 button_type = "primary" if not get_state(State.EDITING) else "secondary"
 col1.button(button_text,
             type=button_type,
@@ -203,7 +203,8 @@ if get_state(State.CONFIRMING_SAVE):
     st.write("You are about to apply the changes to the database. Please review them below before continuing.")
     col1, col2, margin = st.columns((1, 1, 6))
     col1.button("Cancel", type="secondary", on_click=clicked_btn_cancel_save, use_container_width=True)
-    col2.button("Continue", type="primary", on_click=lambda: clicked_btn_continue_save(df), use_container_width=True)
+    col2.button("Continue", type="primary", on_click=lambda: clicked_btn_continue_save(full_df), use_container_width=True)
+
 
 # if get_state(State.SAVE_CONFIRMED):
 #     set_state(State.SAVE_CONFIRMED, False)
@@ -218,22 +219,13 @@ if get_state(State.CONFIRMING_SAVE):
 
 # ---------------- display changes ----------------
 
-def create_new_configurations_df(new_data):
-    new_data_flattened = defaultdict(list)
-    for row in new_data:
-        row_flattened = {k: v for model in row.values() for k, v in model.as_dict().items()}  # TODO values which are not models
-        row_flattened['active'] = 1
-        for k, v in row_flattened.items():
-            new_data_flattened[k].append(v)
-    return pd.DataFrame(new_data_flattened)
-
 
 def display_changes():
     new_data = get_state(State.NEW_DATA)
     deleted_rows, edited_rows, added_rows = None, None, None
     if get_state(State.DATA_EDITOR):
         deleted_rows = get_state(State.DATA_EDITOR)["deleted_rows"]
-        clear_outdated_data_editor_edits(df)
+        clear_outdated_data_editor_edits(full_df)
         edited_rows = get_state(State.DATA_EDITOR)["edited_rows"]
         added_rows = get_state(State.DATA_EDITOR)["added_rows"]
 
@@ -241,10 +233,10 @@ def display_changes():
         with st.expander("Changes: (Click 'Save' to apply)", expanded=False):
 
             if new_data:
-                new_configs_df = create_new_configurations_df(new_data)
+                new_configs_df = c_frontend.create_df_from_selections(new_data)
                 st.write("New configurations:")
                 st.dataframe(
-                    new_configs_df,
+                    c_frontend.get_df_for_display(new_configs_df),
                     hide_index=True,
                     use_container_width=True,
                     column_order=c_frontend.column_order,
@@ -252,22 +244,22 @@ def display_changes():
                 )
 
             if deleted_rows:
-                deleted_idxs = df.iloc[deleted_rows].index
-                deleted_rows_df = df.loc[deleted_idxs]
+                deleted_idxs = full_df.iloc[deleted_rows].index
+                deleted_rows_df = full_df.loc[deleted_idxs]
                 st.write("Deleted configurations:")
                 st.dataframe(
-                    deleted_rows_df,
+                    c_frontend.get_df_for_display(deleted_rows_df),
                     use_container_width=True,
                     column_order=c_frontend.column_order,
                     column_config=c_frontend.column_config,
                 )
 
             if edited_rows:
-                edited_idxs = df.iloc[map(int, edited_rows.keys())].index
-                edited_rows_df = df.loc[edited_idxs]
+                edited_idxs = full_df.iloc[map(int, edited_rows.keys())].index
+                edited_rows_df = full_df.loc[edited_idxs]
                 st.write("Edited configurations (Showing original values):")
                 st.dataframe(
-                    edited_rows_df,
+                    c_frontend.get_df_for_display(edited_rows_df),
                     use_container_width=True,
                     column_order=c_frontend.column_order,
                     column_config=c_frontend.column_config,
@@ -289,7 +281,7 @@ curr_editor_has_modifications = is_data_edited()
 def display_data_editor():
     # https://docs.streamlit.io/library/advanced-features/dataframes
     st.data_editor(
-        df,
+        c_frontend.get_df_for_display(filtered_df),
         use_container_width=True,
         column_order=c_frontend.column_order,
         column_config=c_frontend.column_config,
@@ -314,10 +306,12 @@ if is_data_edited() != curr_editor_has_modifications:
 def display_add_new_section():
     st.divider()
     st.write("New configuration:")
-    c_frontend.render_new_section()
+    selection = c_frontend.render_new_section()
+    set_state(State.NEW_CONFIGURATION, selection)
     margin, col1, col2 = st.columns((10, 1, 1))
     col1.button("Cancel", on_click=clicked_btn_cancel_add_new, use_container_width=True)
-    col2.button("Add", type="primary", on_click=clicked_btn_add_add_new, disabled=is_disabled_btn_add_add_new(), use_container_width=True)
+    col2.button("Add", type="primary", on_click=clicked_btn_add_add_new, disabled=is_disabled_btn_add_add_new(),
+                use_container_width=True)
 
 
 if get_state(State.ADDING_NEW):
@@ -336,4 +330,5 @@ def debug_state():
         col3.write(get_state(State.NEW_DATA))
 
 
-debug_state()
+if st.secrets['debug']:
+    debug_state()
