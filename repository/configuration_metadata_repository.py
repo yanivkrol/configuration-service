@@ -1,7 +1,7 @@
+from db_config import db_session
 from model.configuration_metadata import ConfigurationMetadata
+
 from repository.base_repository import BaseRepository
 
 
-class ConfigurationMetadataRepository(BaseRepository):
-    def __init__(self):
-        super().__init__(ConfigurationMetadata)
+configuration_metadata_repository = BaseRepository(ConfigurationMetadata, db_session)

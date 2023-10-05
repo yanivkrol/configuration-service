@@ -1,11 +1,12 @@
 from typing import List
 
 import pandas as pd
+from sqlalchemy.orm import DeclarativeBase
 
-from repository.configuration_repository import ConfigurationRepository
+from repository.configuration.configuration_repository import ConfigurationRepository
 
 
-def apply_changes(repo: ConfigurationRepository, df: pd.DataFrame, deleted_rows: List[int], edited_rows: dict[str, dict]):
+def apply_changes(repo: ConfigurationRepository, df: pd.DataFrame, deleted_rows: List[int], edited_rows: dict[str, dict], new_rows: list[dict[str, DeclarativeBase]]):
     deleted_idxs = df.iloc[deleted_rows].index
     if len(deleted_idxs) > 0:
         for id in deleted_idxs:
@@ -18,6 +19,8 @@ def apply_changes(repo: ConfigurationRepository, df: pd.DataFrame, deleted_rows:
         #
         # record = repo.clazz(**df.iloc[int(row_num)].to_dict())
         # repo.update_record(record['id'], record)
+
+    repo.add_all_from_values(new_rows)
 
 
 

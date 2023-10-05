@@ -28,3 +28,4 @@ Make sure the Python Interpreter is set to the virtual env created above: `/venv
 - [Robust dataframe filtering](https://blog.streamlit.io/auto-generate-a-dataframe-filtering-ui-in-streamlit-with-filter_dataframe/)
 - [Deleting rows without data editor example](https://discuss.streamlit.io/t/deleting-rows-in-st-data-editor-progmatically/46337/2)
 - [Experimental connection](https://blog.streamlit.io/introducing-st-experimental_connection/), [SQLConnection](https://docs.streamlit.io/library/api-reference/connections/st.connections.sqlconnection)
+- [Auth2 Component](https://github.com/sfc-gh-bhess/st_oauth)

@@ -8,10 +8,12 @@ import streamlit as st
 class _StateKey(Enum):
     COMPANY = auto()
     CONFIGURATION = auto()
-    EDITING_ENABLED = auto()
-    SAVE_CLICKED = auto()
-    SAVE_CONFIRMED = auto()
+    EDITING = auto()
     DATA_EDITOR = auto()
+    ADDING_NEW = auto()
+    NEW_DATA = auto()
+    CONFIRMING_SAVE = auto()
+    CONFIRMED_SAVE = auto()
 
 
 State = _StateKey
@@ -43,16 +45,26 @@ def toggle_state(key: _StateKey) -> None:
 
 
 def reset_main_section_state():
-    set_state(State.EDITING_ENABLED, False)
-    set_state(State.SAVE_CLICKED, False)
-    set_state(State.SAVE_CONFIRMED, False)
+    set_state(State.EDITING, False)
     del_state(State.DATA_EDITOR)
+    set_state(State.ADDING_NEW, False)
+    set_state(State.NEW_DATA, [])
+    set_state(State.CONFIRMING_SAVE, False)
+    set_state(State.CONFIRMED_SAVE, False)
 
 
 def init_default_states():
-    init_state(State.EDITING_ENABLED, False)
-    init_state(State.SAVE_CLICKED, False)
-    init_state(State.SAVE_CONFIRMED, False)
+    init_state(State.EDITING, False)
+    init_state(State.ADDING_NEW, False)
+    init_state(State.NEW_DATA, [])
+    init_state(State.CONFIRMING_SAVE, False)
+    init_state(State.CONFIRMED_SAVE, False)
+
+
+def clear_add_new_states():
+    for k in st.session_state:
+        if k.startswith("add_new_"):
+            del st.session_state[k]
 
 
 def clear_outdated_data_editor_edits(df: pd.DataFrame) -> None:

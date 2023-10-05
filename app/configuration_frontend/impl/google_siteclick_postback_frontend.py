@@ -8,23 +8,12 @@ class GoogleSiteclickPostbackFrontend(BaseConfigurationFrontend):
     def __init__(self):
         super().__init__(
             name="Google - Siteclick Postback",
-            column_order=[
-                "mcc_id",
-                "account_id",
-                "campaign_id"
-            ],
-            column_config={
-                "mcc_id": st.column_config.TextColumn(
-                    required=True,
-                    validate="[a-zA-Z0-9_\\-]+",
-                ),
-                "account_id": st.column_config.TextColumn(
-                    required=True,
-                    validate="[a-zA-Z0-9_\\-]+",
-                ),
-                "campaign_id": st.column_config.TextColumn(
-                    required=True,
-                    validate="[a-zA-Z0-9_\\-]+",
-                )
+            display_name_mapping={
+                "mcc_id": "MCC ID",
+                "account_id": "Account ID",
+                "campaign_id": "Campaign ID",
             }
         )
+
+    def render_new_section(self): # TODO
+        pass
