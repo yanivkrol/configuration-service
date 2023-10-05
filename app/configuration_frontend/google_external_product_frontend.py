@@ -32,7 +32,7 @@ class GoogleExternalProductFrontend(BaseConfigurationFrontend[GoogleExternalProd
 
     def get_df_for_display(self, df) -> pd.DataFrame:
         df = super().get_df_for_display(df)
-        df['campaign_name'] = df['campaign_name'].apply(lambda c: c or "All Campaigns")
+        df['campaign_name'] = df['campaign_name'].apply(lambda c: c or "All campaigns")
         return df
 
     def _render_custom_filter(self, unfiltered_df: pd.DataFrame, filtered_df: pd.DataFrame,
@@ -47,7 +47,7 @@ class GoogleExternalProductFrontend(BaseConfigurationFrontend[GoogleExternalProd
             selected = st.multiselect(
                 f"{self.display_name_mapping[column]}:",
                 options,
-                format_func=lambda o: o or "All Campaigns",
+                format_func=lambda o: o or "All campaigns",
                 default=[]
             )
             if selected:
@@ -69,17 +69,21 @@ class GoogleExternalProductFrontend(BaseConfigurationFrontend[GoogleExternalProd
             format_func=lambda a: a.account_name,
             index=None,
         )
+        all_campaigns_checked = st.checkbox("All campaigns")
         selected_campaign = columns[1].selectbox(
             "Campaign Name",
-            options=[None] + get_campaigns(selected_account.account_id) if selected_account else [],
-            format_func=lambda c: c.campaign_name if c else "All Campaigns",
+            options=get_campaigns(selected_account.account_id) if selected_account else [],
+
+            # this is hack for when all_campaigns checked after a campaign was selected
+            format_func=lambda m: m.campaign_name if not all_campaigns_checked else "",
             index=None,
+            disabled=all_campaigns_checked,
         )
 
-        if all([selected_account, selected_campaign]):
+        if all([selected_account, all_campaigns_checked or selected_campaign]):
             return GoogleExternalProductSelection(
                 account=selected_account,
-                campaign_mapping=selected_campaign
+                campaign_mapping=None if all_campaigns_checked else selected_campaign
             )
         return None
 
@@ -87,8 +91,11 @@ class GoogleExternalProductFrontend(BaseConfigurationFrontend[GoogleExternalProd
         selections_flattened = defaultdict(list)
         for selection in selections:
             selection_flattened = {}
+            if selection.campaign_mapping:
+                selection_flattened.update(selection.campaign_mapping.as_dict())
+            else:
+                selection_flattened.update(GoogleAccountCampaignMappings().as_dict())
             selection_flattened.update(selection.account.as_dict())
-            selection_flattened.update(selection.campaign_mapping.as_dict())
             selection_flattened['active'] = selection.active
             for k, v in selection_flattened.items():
                 selections_flattened[k].append(v)

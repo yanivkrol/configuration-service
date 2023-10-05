@@ -7,15 +7,19 @@ from model.serializable_model import SerializableModel
 from repository.configuration.configuration_repository import ConfigurationRepository
 
 
-def apply_changes(repo: ConfigurationRepository, df: pd.DataFrame, deleted_rows: List[int], edited_rows: dict[str, dict], new_data: list[Selection]):
-    deleted_idxs = df.iloc[deleted_rows].index
+def apply_changes(repo: ConfigurationRepository,
+                  filtered_df: pd.DataFrame,
+                  deleted_rows: List[int],
+                  edited_rows: dict[str, dict],
+                  new_data: list[Selection]):
+    deleted_idxs = filtered_df.iloc[deleted_rows].index
     if len(deleted_idxs) > 0:
         for id in deleted_idxs:
             repo.delete(id)
 
     for row_num, row_changes in edited_rows.items():
         # for column_name, new_value in row_changes.items():
-        id = df.iloc[int(row_num)].name
+        id = filtered_df.iloc[int(row_num)].name
         repo.update(id, row_changes)
         #
         # record = repo.clazz(**df.iloc[int(row_num)].to_dict())

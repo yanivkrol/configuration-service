@@ -9,6 +9,7 @@ class _StateKey(Enum):
     COMPANY = auto()
     CONFIGURATION = auto()
     EDITING = auto()
+    FILTERED_DF = auto()
     DATA_EDITOR = auto()
     ADDING_NEW = auto()
     NEW_CONFIGURATION = auto()
@@ -47,6 +48,7 @@ def toggle_state(key: _StateKey) -> None:
 
 def reset_main_section_state():
     set_state(State.EDITING, False)
+    set_state(State.FILTERED_DF, None)
     del_state(State.DATA_EDITOR)
     set_state(State.ADDING_NEW, False)
     set_state(State.NEW_CONFIGURATION, None)
@@ -57,8 +59,9 @@ def reset_main_section_state():
 
 def init_default_states():
     init_state(State.EDITING, False)
+    init_state(State.FILTERED_DF, None)
     init_state(State.ADDING_NEW, False)
-    set_state(State.NEW_CONFIGURATION, None)
+    init_state(State.NEW_CONFIGURATION, None)
     init_state(State.NEW_DATA, [])
     init_state(State.CONFIRMING_SAVE, False)
     init_state(State.CONFIRMED_SAVE, False)

@@ -28,7 +28,7 @@ class GoogleExternalProductRepository(ConfigurationRepository[GoogleExternalProd
         for selection in selections:
             configuration = GoogleExternalProduct(
                 account_id=selection.account.account_id,
-                campaign_id=selection.campaign_mapping.campaign_id,
+                campaign_id=selection.campaign_mapping.campaign_id if selection.campaign_mapping else None,
                 active=selection.active,
             )
             self.add(configuration)

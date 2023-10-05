@@ -162,9 +162,10 @@ with st.sidebar.container():
     if not get_state(State.EDITING):
         "Filters:"
         filtered_df = c_frontend.render_filters(full_df)
+        set_state(State.FILTERED_DF, filtered_df)
     else:
-        "Filtering is disabled when editing. Use filtering before starting to edit."
-        filtered_df = full_df.copy()
+        "Further filtering is disabled when editing. Use filtering before starting to edit."
+        filtered_df = get_state(State.FILTERED_DF)
 
 
 # ------------------ control buttons ------------------
@@ -203,7 +204,7 @@ if get_state(State.CONFIRMING_SAVE):
     st.write("You are about to apply the changes to the database. Please review them below before continuing.")
     col1, col2, margin = st.columns((1, 1, 6))
     col1.button("Cancel", type="secondary", on_click=clicked_btn_cancel_save, use_container_width=True)
-    col2.button("Continue", type="primary", on_click=lambda: clicked_btn_continue_save(full_df), use_container_width=True)
+    col2.button("Continue", type="primary", on_click=lambda: clicked_btn_continue_save(filtered_df), use_container_width=True)
 
 
 # if get_state(State.SAVE_CONFIRMED):
@@ -225,7 +226,7 @@ def display_changes():
     deleted_rows, edited_rows, added_rows = None, None, None
     if get_state(State.DATA_EDITOR):
         deleted_rows = get_state(State.DATA_EDITOR)["deleted_rows"]
-        clear_outdated_data_editor_edits(full_df)
+        clear_outdated_data_editor_edits(filtered_df)
         edited_rows = get_state(State.DATA_EDITOR)["edited_rows"]
         added_rows = get_state(State.DATA_EDITOR)["added_rows"]
 
@@ -244,8 +245,8 @@ def display_changes():
                 )
 
             if deleted_rows:
-                deleted_idxs = full_df.iloc[deleted_rows].index
-                deleted_rows_df = full_df.loc[deleted_idxs]
+                deleted_idxs = filtered_df.iloc[deleted_rows].index
+                deleted_rows_df = filtered_df.loc[deleted_idxs]
                 st.write("Deleted configurations:")
                 st.dataframe(
                     c_frontend.get_df_for_display(deleted_rows_df),
@@ -255,8 +256,8 @@ def display_changes():
                 )
 
             if edited_rows:
-                edited_idxs = full_df.iloc[map(int, edited_rows.keys())].index
-                edited_rows_df = full_df.loc[edited_idxs]
+                edited_idxs = filtered_df.iloc[map(int, edited_rows.keys())].index
+                edited_rows_df = filtered_df.loc[edited_idxs]
                 st.write("Edited configurations (Showing original values):")
                 st.dataframe(
                     c_frontend.get_df_for_display(edited_rows_df),
