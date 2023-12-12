@@ -4,8 +4,8 @@ from dataclasses import dataclass
 import pandas as pd
 import streamlit as st
 
-from app.configuration_frontend import BaseConfigurationFrontend
-from app.configuration_frontend import Selection
+from app.frontend.confiugration import BaseConfigurationFrontend
+from app.frontend.confiugration import Selection
 from model.dim.google_account import GoogleAccount
 from model.dim.google_account_campaign_mappings import GoogleAccountCampaignMappings
 from repository.dim_repository import dim_google_account_campaigns_mapping_repository, dim_google_account_repository

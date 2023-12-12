@@ -29,7 +29,7 @@ class BaseConfigurationFrontend(ABC, Generic[SelectionT]):
         self.column_config.update({
             column: st.column_config.TextColumn(
                 label=display_name,
-                disabled=True,  # No editing values
+                disabled=True,  # No editing values for now, only active/inactive
             )
             for column, display_name in display_name_mapping.items()
         })
@@ -76,13 +76,6 @@ class BaseConfigurationFrontend(ABC, Generic[SelectionT]):
                 )
                 if selected:
                     filtered_df = filtered_df[filtered_df[column].isin(selected)]
-                # user_text_input = st.text_input(f"Substring in {column}", autocomplete="default")
-                # if user_text_input:
-                #     user_text_input = user_text_input.strip()
-                #     if is_numeric_dtype(df[column]):
-                #         filtered_df = filtered_df[filtered_df[column] == int(user_text_input)]
-                #     else:
-                #         filtered_df = filtered_df[filtered_df[column].str.contains(user_text_input.strip(), case=False, regex=False)]
 
         if filtered_df is unfiltered_df:
             return unfiltered_df.copy()
@@ -101,8 +94,8 @@ class BaseConfigurationFrontend(ABC, Generic[SelectionT]):
         ...
 
 
-from app.configuration_frontend.google_external_product_frontend import GoogleExternalProductFrontend
-from app.configuration_frontend.google_siteclick_postback_frontend import GoogleSiteclickPostbackFrontend
+from app.frontend.confiugration.google_external_product_frontend import GoogleExternalProductFrontend
+from app.frontend.confiugration.google_siteclick_postback_frontend import GoogleSiteclickPostbackFrontend
 
 _google_external_product_frontend = GoogleExternalProductFrontend()
 _google_siteclick_postback_frontend = GoogleSiteclickPostbackFrontend()

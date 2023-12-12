@@ -2,8 +2,8 @@ from dataclasses import dataclass
 
 import pandas as pd
 
-from app.configuration_frontend import BaseConfigurationFrontend
-from app.configuration_frontend import Selection
+from app.frontend.confiugration import BaseConfigurationFrontend
+from app.frontend.confiugration import Selection
 
 
 @dataclass

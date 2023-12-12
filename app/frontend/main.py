@@ -1,20 +1,14 @@
-import warnings
-
-from sqlalchemy.exc import IntegrityError
-
-warnings.simplefilter(action='ignore', category=FutureWarning)
 import streamlit as st
+from sqlalchemy.exc import IntegrityError
+from st_oauth import st_oauth
+
 st.set_page_config(layout="wide")
 
 from configurations import get_all_configurations
-
-
-from st_oauth import st_oauth
-
-import middleware
-
-import configuration_frontend
+from app.middleware import middleware
+import app.frontend.confiugration as confiugration_frontend
 import repository.configuration as configuration_repository
+import app.middleware.configuration as configuration_middleware
 from state_management import *
 
 
@@ -78,8 +72,8 @@ def clicked_btn_continue_save(df):
         data_editor = get_state(State.DATA_EDITOR)
         new_data = get_state(State.NEW_DATA)
         try:
-            middleware.apply_changes(c_repository, df, data_editor["deleted_rows"], data_editor["edited_rows"],
-                                          new_data)
+            middleware.apply_changes(c_repository, c_middleware, df, data_editor["deleted_rows"],
+                                     data_editor["edited_rows"], new_data)
         except IntegrityError as e:
             handle_save_error(e, str(e.orig))
             return
@@ -170,15 +164,16 @@ with st.sidebar.container():
     st.selectbox(
         label="Configuration:",
         options=get_all_configurations(),
-        format_func=lambda c: configuration_frontend.get_frontend(c).label,
+        format_func=lambda c: confiugration_frontend.get_frontend(c).label,
         on_change=reset_main_section_state,
         key=State.CONFIGURATION
     )
 
     st.divider()
 
-c_frontend = configuration_frontend.get_frontend(get_state(State.CONFIGURATION))
+c_frontend = confiugration_frontend.get_frontend(get_state(State.CONFIGURATION))
 c_repository = configuration_repository.get_repository(get_state(State.CONFIGURATION))
+c_middleware = configuration_middleware.get_middleware(get_state(State.CONFIGURATION))
 
 full_df = c_repository.get_as_df(limit=QUERY_SIZE_LIMIT)
 with st.sidebar.container():

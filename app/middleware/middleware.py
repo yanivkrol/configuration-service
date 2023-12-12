@@ -2,12 +2,14 @@ from typing import List
 
 import pandas as pd
 
-from app.configuration_frontend import Selection
+from app.frontend.confiugration import Selection
 from db_config import db_session
-from repository.configuration.configuration_repository import ConfigurationRepository
+from .configuration import BaseConfigurationMiddleware
+from repository.configuration import ConfigurationRepository
 
 
 def apply_changes(repo: ConfigurationRepository,
+                  middleware: BaseConfigurationMiddleware,
                   filtered_df: pd.DataFrame,
                   deleted_rows: List[int],
                   edited_rows: dict[str, dict],
@@ -25,7 +27,8 @@ def apply_changes(repo: ConfigurationRepository,
         # record = repo.clazz(**df.iloc[int(row_num)].to_dict())
         # repo.update_record(record['id'], record)
 
-    repo.add_from_selections(new_data)
+    for selection in new_data:
+        repo.add(middleware.to_database_object(selection))
 
     try:
         db_session.commit()
