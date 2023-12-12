@@ -25,7 +25,7 @@ class BaseRepository(ABC, Generic[ModelT]):
         return self.session.query(self.model)
 
     @staticmethod
-    @st.cache_data(ttl=300, show_spinner="Loading data...", hash_funcs={Query: hash_query})
+    # @st.cache_resource(ttl=300, show_spinner="Loading data...", hash_funcs={Query: hash_query})
     def _cached_get(query: Query) -> list[ModelT]:
         return query.all()
 
@@ -39,13 +39,10 @@ class BaseRepository(ABC, Generic[ModelT]):
 
     def add(self, record) -> None:
         self.session.add(record)
-        self.session.commit()
 
     def update(self, id: str, update: dict) -> None:
         self.session.query(self.model).filter(self.model.id == id).update(update)
-        self.session.commit()
 
     def delete(self, id: int) -> None:
         record = self.get_by_id(id)
         self.session.delete(record)
-        self.session.commit()

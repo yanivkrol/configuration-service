@@ -1,4 +1,7 @@
 import warnings
+
+from sqlalchemy.exc import IntegrityError
+
 warnings.simplefilter(action='ignore', category=FutureWarning)
 import streamlit as st
 st.set_page_config(layout="wide")
@@ -8,7 +11,7 @@ from configurations import get_all_configurations
 
 from st_oauth import st_oauth
 
-import process_changes
+import middleware
 
 import configuration_frontend
 import repository.configuration as configuration_repository
@@ -74,13 +77,30 @@ def clicked_btn_continue_save(df):
     with st.spinner("Saving..."):
         data_editor = get_state(State.DATA_EDITOR)
         new_data = get_state(State.NEW_DATA)
-        process_changes.apply_changes(c_repository, df, data_editor["deleted_rows"], data_editor["edited_rows"],
-                                      new_data)
-        st.cache_data.clear()  # TODO maybe we will have api to clear specific keys in the future
-        reset_main_section_state()
-        st.markdown("""<div style="margin-top: 25px;"></div>""", unsafe_allow_html=True)
-        st.success("Saved successfully!", icon="🚀")
-        st.warning("Changes may take some time to take effect.", icon="⚠")
+        try:
+            middleware.apply_changes(c_repository, df, data_editor["deleted_rows"], data_editor["edited_rows"],
+                                          new_data)
+        except IntegrityError as e:
+            handle_save_error(e, str(e.orig))
+            return
+        except Exception as e:
+            handle_save_error(e)
+            return
+        handle_save_success()
+
+
+def handle_save_error(e: Exception, err_msg: str = None):
+    print(e)
+    st.markdown("""<div style="margin-top: 25px;"></div>""", unsafe_allow_html=True)
+    st.error("Failed to save changes. " + (err_msg or e))
+
+
+def handle_save_success():
+    # st.cache_data.clear()  # TODO maybe we will have api to clear specific keys in the future
+    reset_main_section_state()
+    st.markdown("""<div style="margin-top: 25px;"></div>""", unsafe_allow_html=True)
+    st.success("Saved successfully!", icon="🚀")
+    st.warning("Changes may take some time to take effect.", icon="⚠")
 
 
 def is_disabled_btn_add_add_new():
@@ -114,14 +134,10 @@ companies = [
 QUERY_SIZE_LIMIT = 10
 
 
-
 user_email = st_oauth(label='Login with Okta') if st.secrets['use_login'] else "john.doe@naturalint.com"  # TODO env var
 
 init_default_states()
 
-# # When a filter is applied after editing, the data editor is reset
-# if get_state(State.EDITING) and not is_data_edited():
-#     set_state(State.EDITING, False)
 
 # remove margin
 st.markdown("""
@@ -244,6 +260,13 @@ def display_changes():
 
     if any([new_data, deleted_rows, edited_rows]):
         with st.expander("Changes: (Click 'Save' to apply)", expanded=False):
+            st.markdown("""
+              <style>
+                details {
+                    background-color: rgba(255, 227, 18, 0.1);
+                }
+              </style>
+            """, unsafe_allow_html=True)
 
             if new_data:
                 new_configs_df = c_frontend.create_df_from_selections(new_data)

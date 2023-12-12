@@ -23,7 +23,7 @@ class ConfigurationRepository(BaseRepository[ConfigurationModelT], Generic[Confi
         return self._cached_pd_read_sql(query)
 
     @staticmethod
-    @st.cache_data(ttl=300, show_spinner="Loading data...", hash_funcs={Query: hash_query})
+    # @st.cache_data(ttl=300, show_spinner="Loading data...", hash_funcs={Query: hash_query})
     def _cached_pd_read_sql(query: Query) -> pd.DataFrame:
         return pd.read_sql(query.statement, query.session.bind, index_col="id")
 

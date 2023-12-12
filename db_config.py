@@ -7,7 +7,7 @@ from sqlalchemy.orm import sessionmaker
 DATABASE_URL = "mysql://root:root@127.0.0.1:3306/configuration_service"  # TODO env var
 
 engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
+SessionLocal = sessionmaker(bind=engine)
 db_session = SessionLocal()
 
 Base = declarative_base()

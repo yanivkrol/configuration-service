@@ -3,7 +3,7 @@ from typing import List
 import pandas as pd
 
 from app.configuration_frontend import Selection
-from model.serializable_model import SerializableModel
+from db_config import db_session
 from repository.configuration.configuration_repository import ConfigurationRepository
 
 
@@ -26,3 +26,9 @@ def apply_changes(repo: ConfigurationRepository,
         # repo.update_record(record['id'], record)
 
     repo.add_from_selections(new_data)
+
+    try:
+        db_session.commit()
+    except:
+        db_session.rollback()
+        raise
