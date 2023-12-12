@@ -13,13 +13,12 @@ from repository.base_repository import BaseRepository
 DimModelT = TypeVar('DimModelT', bound=SerializableModel)
 
 
-class DimRepository(BaseRepository):
+class DimRepository(BaseRepository[DimModelT]):
     def __init__(self, model: Type[DimModelT], session: Session):
         super().__init__(model, session)
 
 
-dim_google_account_repository = DimRepository(GoogleAccount, db_session)
-dim_google_account_repository.get()
-dim_google_account_campaigns_mapping_repository = DimRepository(GoogleAccountCampaignMappings, db_session)
-dim_partner_repository = DimRepository(Partner, db_session)
-dim_partner_company_repository = DimRepository(PartnerCompany, db_session)
+dim_google_account_repository = DimRepository[GoogleAccount](GoogleAccount, db_session)
+dim_google_account_campaigns_mapping_repository = DimRepository[GoogleAccountCampaignMappings](GoogleAccountCampaignMappings, db_session)
+dim_partner_repository = DimRepository[Partner](Partner, db_session)
+dim_partner_company_repository = DimRepository[PartnerCompany](PartnerCompany, db_session)

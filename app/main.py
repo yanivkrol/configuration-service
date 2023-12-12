@@ -22,13 +22,13 @@ def is_data_edited():
     return False
 
 
-def is_disabled_btn_enable_editing():
+def is_disabled_btn_edit():
     if get_state(State.CONFIRMING_SAVE):
         return True
     return False
 
 
-def clicked_btn_enable_editing():
+def clicked_btn_edit():
     toggle_state(State.EDITING)
 
 
@@ -95,9 +95,21 @@ def clicked_btn_add_add_new():
 
 
 companies = [
-    {"shortened": "ni", "full": "Natural Intelligence", "domain": "naturalint.com"},
-    {"shortened": "bi", "full": "Better Impression", "domain": "bimpression.com"},
-    {"shortened": "cappsool", "full": "Cappsool", "domain": "cappsool.com"},
+    {
+        "shortened": "ni",
+        "full": "Natural Intelligence",
+        "domain": "naturalint.com"
+    },
+    {
+        "shortened": "bi",
+        "full": "Better Impression",
+        "domain": "bimpression.com"
+    },
+    {
+        "shortened": "cappsool",
+        "full": "Cappsool",
+        "domain": "cappsool.com"
+    },
 ]
 QUERY_SIZE_LIMIT = 10
 
@@ -149,23 +161,23 @@ with st.sidebar.container():
 
     st.divider()
 
-# ------------------ start main section ------------------
-
-
 c_frontend = configuration_frontend.get_frontend(get_state(State.CONFIGURATION))
 c_repository = configuration_repository.get_repository(get_state(State.CONFIGURATION))
 
-st.title(c_frontend.label)
-
 full_df = c_repository.get_as_df(limit=QUERY_SIZE_LIMIT)
 with st.sidebar.container():
-    if not get_state(State.EDITING):
-        "Filters:"
-        filtered_df = c_frontend.render_filters(full_df)
-        set_state(State.FILTERED_DF, filtered_df)
-    else:
-        "Further filtering is disabled when editing. Use filtering before starting to edit."
-        filtered_df = get_state(State.FILTERED_DF)
+    editing = get_state(State.EDITING)
+    "Filters:"
+    filtered_df = c_frontend.render_filters(full_df, disabled=editing)
+    set_state(State.FILTERED_DF, filtered_df)
+    if editing:
+        "﹡Further filtering is disabled when editing."
+
+
+# ------------------ main section ------------------
+
+
+st.title(c_frontend.label)
 
 
 # ------------------ control buttons ------------------
@@ -182,8 +194,8 @@ else:
 button_type = "primary" if not get_state(State.EDITING) else "secondary"
 col1.button(button_text,
             type=button_type,
-            disabled=is_disabled_btn_enable_editing(),
-            on_click=clicked_btn_enable_editing,
+            disabled=is_disabled_btn_edit(),
+            on_click=clicked_btn_edit,
             use_container_width=True)
 
 col2.button("Add new",

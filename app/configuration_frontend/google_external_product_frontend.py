@@ -24,8 +24,8 @@ class GoogleExternalProductFrontend(BaseConfigurationFrontend[GoogleExternalProd
         super().__init__(
             label="Google - External Product",
             display_name_mapping={
-                "account_name": "Account Name",
-                "campaign_name": "Campaign Name",
+                "account_name": "Account name",
+                "campaign_name": "Campaign name",
             },
             custom_filter_columns=["campaign_name"]
         )
@@ -36,7 +36,7 @@ class GoogleExternalProductFrontend(BaseConfigurationFrontend[GoogleExternalProd
         return df
 
     def _render_custom_filter(self, unfiltered_df: pd.DataFrame, filtered_df: pd.DataFrame,
-                              column: str) -> pd.DataFrame:
+                              column: str, disabled: bool = False) -> pd.DataFrame:
         if column == "campaign_name":
             options = list(unfiltered_df[column].unique())
             try:
@@ -48,7 +48,8 @@ class GoogleExternalProductFrontend(BaseConfigurationFrontend[GoogleExternalProd
                 f"{self.display_name_mapping[column]}:",
                 options,
                 format_func=lambda o: o or "All campaigns",
-                default=[]
+                default=[],
+                disabled=disabled,
             )
             if selected:
                 filtered_df = filtered_df[filtered_df[column].isin(selected)]
@@ -64,14 +65,14 @@ class GoogleExternalProductFrontend(BaseConfigurationFrontend[GoogleExternalProd
 
         columns = st.columns(2)
         selected_account = columns[0].selectbox(
-            "Account Name",
+            "Account name",
             options=accounts,
             format_func=lambda a: a.account_name,
             index=None,
         )
         all_campaigns_checked = st.checkbox("All campaigns")
         selected_campaign = columns[1].selectbox(
-            "Campaign Name",
+            "Campaign name",
             options=get_campaigns(selected_account.account_id) if selected_account else [],
 
             # this is hack for when all_campaigns checked after a campaign was selected

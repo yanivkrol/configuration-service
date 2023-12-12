@@ -4,4 +4,4 @@ from model.configuration_metadata import ConfigurationMetadata
 from repository.base_repository import BaseRepository
 
 
-configuration_metadata_repository = BaseRepository(ConfigurationMetadata, db_session)
+configuration_metadata_repository = BaseRepository[ConfigurationMetadata](ConfigurationMetadata, db_session)

@@ -49,29 +49,30 @@ class BaseConfigurationFrontend(ABC, Generic[SelectionT]):
     def get_df_for_display(self, df: pd.DataFrame) -> pd.DataFrame:
         return df.copy()
 
-    def render_filters(self, unfiltered_df: pd.DataFrame) -> pd.DataFrame:
+    def render_filters(self, unfiltered_df: pd.DataFrame, disabled: bool = False) -> pd.DataFrame:
         filtered_df = unfiltered_df  # Any filtering is not in place, so we iteratively work on 'filtered_df'
 
         for column in self.column_order:
             if column in self.custom_filter_columns:
-                filtered_df = self._render_custom_filter(unfiltered_df, filtered_df, column)
+                filtered_df = self._render_custom_filter(unfiltered_df, filtered_df, column, disabled=disabled)
 
             elif column == "active":
                 selected = st.radio(
-                    "State",
-                    ("Active", "Inactive", "All"),
-                    index=2,
+                    "Active:",
+                    ("All", "Yes", "No"),
                     horizontal=True,
+                    disabled=disabled,
                 )
-                if selected == "Active":
+                if selected == "Yes":
                     filtered_df = filtered_df[filtered_df["active"] == True]
-                elif selected == "Inactive":
+                elif selected == "No":
                     filtered_df = filtered_df[filtered_df["active"] == False]
 
             else:
                 selected = st.multiselect(
                     f"{self.display_name_mapping[column]}:",
                     unfiltered_df[column].unique(),
+                    disabled=disabled,
                 )
                 if selected:
                     filtered_df = filtered_df[filtered_df[column].isin(selected)]
@@ -87,7 +88,8 @@ class BaseConfigurationFrontend(ABC, Generic[SelectionT]):
             return unfiltered_df.copy()
         return filtered_df
 
-    def _render_custom_filter(self, unfiltered_df: pd.DataFrame, filtered_df: pd.DataFrame, column: str) -> pd.DataFrame:
+    def _render_custom_filter(self, unfiltered_df: pd.DataFrame, filtered_df: pd.DataFrame,
+                              column: str, disabled: bool = False) -> pd.DataFrame:
         return filtered_df
 
     @abstractmethod
@@ -104,6 +106,7 @@ from app.configuration_frontend.google_siteclick_postback_frontend import Google
 
 _google_external_product_frontend = GoogleExternalProductFrontend()
 _google_siteclick_postback_frontend = GoogleSiteclickPostbackFrontend()
+
 
 def get_frontend(config_id: ConfigurationId) -> BaseConfigurationFrontend:
     this_module = sys.modules[__name__]
