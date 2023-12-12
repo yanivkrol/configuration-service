@@ -29,3 +29,12 @@ Make sure the Python Interpreter is set to the virtual env created above: `/venv
 - [Deleting rows without data editor example](https://discuss.streamlit.io/t/deleting-rows-in-st-data-editor-progmatically/46337/2)
 - [Experimental connection](https://blog.streamlit.io/introducing-st-experimental_connection/), [SQLConnection](https://docs.streamlit.io/library/api-reference/connections/st.connections.sqlconnection)
 - [Auth2 Component](https://github.com/sfc-gh-bhess/st_oauth)
+
+### Adding a new configuration:
+
+To add a configuration with the name "X" (e.g. "ExternalProduct"), Implement the following interfaces:
+- `X` - the configuration object, which is also saved in the database.
+- `XSelection` - the user's selection for a new configuration. from which an `X` object is created.
+- `XConfigurationFrotnend` - incharge of displaying the data and manipulation of it by the user.
+- `XConfigurationMiddleware` - handles data manipulation between the database and the frontend, can be regarded as the 'Backend logic'.
+- `XConfigurationRepository` - handles the database operations.
