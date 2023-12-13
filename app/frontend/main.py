@@ -84,9 +84,8 @@ def clicked_btn_continue_save(df):
 
 
 def handle_save_error(e: Exception, err_msg: str = None):
-    print(e)
     st.markdown("""<div style="margin-top: 25px;"></div>""", unsafe_allow_html=True)
-    st.error("Failed to save changes. " + (err_msg or e))
+    st.error("Failed to save changes. " + (err_msg or str(e)))
 
 
 def handle_save_success():
