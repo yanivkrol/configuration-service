@@ -38,3 +38,4 @@ To add a configuration with the name "X" (e.g. "ExternalProduct"), Implement the
 - `XConfigurationFrotnend` - incharge of displaying the data and manipulation of it by the user.
 - `XConfigurationMiddleware` - handles data manipulation between the database and the frontend, can be regarded as the 'Backend logic'.
 - `XConfigurationRepository` - handles the database operations.
+ # TODO add to confiugrations.py and all other _ variables

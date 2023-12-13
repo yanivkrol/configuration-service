@@ -33,9 +33,14 @@ class ConfigurationRepository(BaseRepository[ConfigurationModelT]):
 
 
 from repository.configuration.google_external_product import GoogleExternalProductRepository
+from repository.configuration.google_siteclick_postback import GoogleSiteclickPostbackRepository
+from repository.configuration.google_parallel_predictions import GoogleParallelPredictionsRepository
+from repository.configuration.google_postback_with_commission import GooglePostbackWithCommissionRepository
 
 _google_external_product_repository = GoogleExternalProductRepository(db_session)
-# _google_siteclick_postback_repository = ConfigurationRepository(db_session)
+_google_siteclick_postback_repository = GoogleSiteclickPostbackRepository(db_session)
+_google_parallel_predictions_repository = GoogleParallelPredictionsRepository(db_session)
+_google_postback_with_commission_repository = GooglePostbackWithCommissionRepository(db_session)
 
 
 def get_repository(config_id: ConfigurationId) -> ConfigurationRepository:

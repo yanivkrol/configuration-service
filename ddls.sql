@@ -42,7 +42,7 @@ create table configuration_google_external_product
 (
     id                                      bigint auto_increment primary key ,
     account_id                              varchar(255) not null,
-    campaign_id                             varchar(20)  not null,
+    campaign_id                             varchar(255) not null,
     external_partner_product_naming_enabled tinyint(1)   not null,
     unique account_id__campaign_id (account_id, campaign_id)
 );
@@ -50,9 +50,33 @@ create table configuration_google_external_product
 create table configuration_google_siteclick_postback
 (
     id                                      bigint auto_increment primary key ,
+    mcc_id                                  varchar(255) not null,
     account_id                              varchar(255) not null,
-    campaign_id                             varchar(20)  not null,
-    external_partner_product_naming_enabled tinyint(1)   not null,
+    campaign_id                             varchar(255) not null,
+    rollout_type                            varchar(255) not null,
+    active                                  tinyint(1)   not null,
+    unique account_id__campaign_id (account_id, campaign_id)
+);
+
+create table configuration_google_parallel_predictions
+(
+    id                                      bigint auto_increment primary key,
+    account_id                              varchar(255) not null,
+    partner_id                              varchar(255) not null,
+    deal_type                               varchar(255) not null,
+    active                                  tinyint(1)   not null,
+    unique account_id__partner_id__deal_type (account_id, partner_id, deal_type)
+);
+
+create table configuration_google_postback_with_commission
+(
+    id                                      bigint auto_increment primary key,
+    mcc_id                                  varchar(255) not null,
+    account_id                              varchar(255) not null,
+    campaign_id                             varchar(255) not null,
+    from_date                               datetime     not null,
+    to_date                                 datetime             ,
+    active                                  tinyint(1)   not null,
     unique account_id__campaign_id (account_id, campaign_id)
 );
 

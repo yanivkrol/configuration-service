@@ -5,6 +5,7 @@ from typing import Optional, TypeVar, Generic
 import pandas as pd
 import streamlit as st
 
+from app.frontend.components.filters import ColumnFilter
 from configurations import ConfigurationId
 
 
@@ -20,7 +21,9 @@ class BaseConfigurationFrontend(ABC, Generic[SelectionT]):
     def __init__(self,
                  label: str,
                  display_name_mapping: dict[str, str],
-                 custom_filter_columns: Optional[list[str]] = None):
+                 custom_column_filters: Optional[dict[str, ColumnFilter]] = None,
+                 custom_column_display_function: Optional[dict[str, callable]] = None,
+                 enum_columns: Optional[list[str]] = None):
         self.label = label
 
         self.column_config = {'id': st.column_config.NumberColumn(
@@ -44,19 +47,28 @@ class BaseConfigurationFrontend(ABC, Generic[SelectionT]):
         self.display_name_mapping = {k: cfg['label'] for k, cfg in self.column_config.items()}
         self.display_name_mapping.pop("id")
 
-        self.custom_filter_columns = custom_filter_columns or []
+        self.custom_filter_columns = custom_column_filters or []
+        self.custom_column_display_function = custom_column_display_function or {}
+        self.enum_columns = enum_columns or []
 
     def get_df_for_display(self, df: pd.DataFrame) -> pd.DataFrame:
-        return df.copy()
+        df = df.copy()
+
+        for column in self.enum_columns:
+            df[column] = df[column].apply(lambda enum: enum.value)
+        for column, function in self.custom_column_display_function.items():
+            df[column] = function(df[column])
+
+        return df
 
     def render_filters(self, unfiltered_df: pd.DataFrame, disabled: bool = False) -> pd.DataFrame:
         filtered_df = unfiltered_df  # Any filtering is not in place, so we iteratively work on 'filtered_df'
 
         for column in self.column_order:
             if column in self.custom_filter_columns:
-                filtered_df = self._render_custom_filter(unfiltered_df, filtered_df, column, disabled=disabled)
+                filtered_df = self.custom_filter_columns[column].filter(unfiltered_df, filtered_df, disabled=disabled)
 
-            elif column == "active":
+            elif column == "active":  # TODO bug: the state remains between different high-level selections
                 selected = st.radio(
                     "Active:",
                     ("All", "Yes", "No"),
@@ -72,6 +84,7 @@ class BaseConfigurationFrontend(ABC, Generic[SelectionT]):
                 selected = st.multiselect(
                     f"{self.display_name_mapping[column]}:",
                     unfiltered_df[column].unique(),
+                    format_func=(lambda enum: enum.value) if (column in self.enum_columns) else (lambda x: x),
                     disabled=disabled,
                 )
                 if selected:
@@ -81,24 +94,25 @@ class BaseConfigurationFrontend(ABC, Generic[SelectionT]):
             return unfiltered_df.copy()
         return filtered_df
 
-    def _render_custom_filter(self, unfiltered_df: pd.DataFrame, filtered_df: pd.DataFrame,
-                              column: str, disabled: bool = False) -> pd.DataFrame:
-        return filtered_df
-
     @abstractmethod
     def render_new_section(self) -> SelectionT | None:
         ...
 
     @abstractmethod
     def create_df_from_selections(self, selections: list[SelectionT]) -> pd.DataFrame:
+        """This should return a dataframe that looks like it came from the database."""
         ...
 
 
 from app.frontend.confiugration.google_external_product_frontend import GoogleExternalProductFrontend
 from app.frontend.confiugration.google_siteclick_postback_frontend import GoogleSiteclickPostbackFrontend
+from app.frontend.confiugration.google_parallel_predictions_frontend import GoogleParallelPredictionsFrontend
+from app.frontend.confiugration.google_postback_with_commission_frontend import GooglePostbackWithCommissionFrontend
 
 _google_external_product_frontend = GoogleExternalProductFrontend()
 _google_siteclick_postback_frontend = GoogleSiteclickPostbackFrontend()
+_google_parallel_predictions_frontend = GoogleParallelPredictionsFrontend()
+_google_postback_with_commission_frontend = GooglePostbackWithCommissionFrontend()
 
 
 def get_frontend(config_id: ConfigurationId) -> BaseConfigurationFrontend:

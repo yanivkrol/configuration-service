@@ -15,8 +15,14 @@ class BaseConfigurationMiddleware(Protocol[S, T]):
 
 
 from app.middleware.configuration.google_external_product_middleware import GoogleExternalProductMiddleware
+from app.middleware.configuration.google_siteclick_postback_middleware import GoogleSiteclickPostbackMiddleware
+from app.middleware.configuration.google_parallel_predictions_middleware import GoogleParallelPredictionsMiddleware
+from app.middleware.configuration.google_postback_with_commission_middleware import GooglePostbackWithCommissionMiddleware
 
 _google_external_product_middleware = GoogleExternalProductMiddleware()
+_google_siteclick_postback_middleware = GoogleSiteclickPostbackMiddleware()
+_google_parallel_predictions_middleware = GoogleParallelPredictionsMiddleware()
+_google_postback_with_commission_middleware = GooglePostbackWithCommissionMiddleware()
 
 
 def get_middleware(config_id: ConfigurationId) -> BaseConfigurationMiddleware:
