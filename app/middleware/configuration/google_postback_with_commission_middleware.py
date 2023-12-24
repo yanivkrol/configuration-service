@@ -9,7 +9,5 @@ class GooglePostbackWithCommissionMiddleware(BaseConfigurationMiddleware[GoogleP
             mcc_id=selection.account.mcc_id,
             account_id=selection.account.account_id,
             campaign_id=selection.campaign_mapping.campaign_id if selection.campaign_mapping else "__ALL__",
-            from_date=selection.from_date,
-            to_date=selection.to_date,
             active=selection.active,
         )

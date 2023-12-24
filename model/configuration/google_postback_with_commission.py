@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, String, Column, UniqueConstraint, Boolean, DateTime
+from sqlalchemy import Integer, String, Column, UniqueConstraint, Boolean
 
 from model.serializable_model import SerializableModel
 
@@ -10,8 +10,6 @@ class GooglePostbackWithCommission(SerializableModel):
     mcc_id = Column(String, nullable=False)
     account_id = Column(String, nullable=False)
     campaign_id = Column(String, nullable=False)
-    from_date = Column(DateTime, nullable=False)
-    to_date = Column(DateTime)
     active = Column(Boolean, nullable=False, default=True)
 
     __table_args__ = (
