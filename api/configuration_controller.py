@@ -6,7 +6,7 @@ from configurations import get_all_configurations, ConfigurationId
 app = Flask(__name__)
 
 
-@app.route('/config/<string:config_name>', methods=['GET'])
+@app.route('/api/v1/config/<string:config_name>', methods=['GET'])
 def get_config(config_name: ConfigurationId):
     if config_name not in get_all_configurations():
         return jsonify({'error': 'No such configuration ' + config_name}), 400
@@ -14,7 +14,17 @@ def get_config(config_name: ConfigurationId):
     repository = configuration_repository.get_repository(config_name)
     configurations = repository.get()
 
-    return jsonify([c.as_dict() for c in configurations])
+    items = []
+    for c in configurations:
+        key = c.as_dict()
+        active = key.pop('active')
+        items.append({
+            'key': key,
+            'active': active,
+            'data': None
+        })
+
+    return jsonify(items)
 
 
 if __name__ == '__main__':

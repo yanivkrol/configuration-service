@@ -5,7 +5,7 @@ from sqlalchemy import Integer, String, Column, UniqueConstraint, Boolean, Enum
 from model.serializable_model import SerializableModel
 
 
-class DealType(enum.Enum):
+class DealType(str, enum.Enum):  # str for JSON serialization
     LEAD = "Lead"
     SALE = "Sale"
     REV_SHARE = "Rev Share"
