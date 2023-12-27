@@ -1,6 +1,6 @@
 import sys
 from abc import abstractmethod
-from typing import TypeVar, Type, Optional
+from typing import TypeVar, Type
 
 import pandas as pd
 from sqlalchemy import desc
@@ -18,8 +18,8 @@ class ConfigurationRepository(BaseRepository[ConfigurationModelT]):
     def __init__(self, model: Type[ConfigurationModelT], session: Session):
         super().__init__(model, session)
 
-    def get_as_df(self, limit: Optional[int] = None) -> pd.DataFrame:  # TODO remove limit in all places?
-        query = self._get_as_df_query().order_by(desc(self.model.id)).limit(limit)  # type: ignore
+    def get_as_df(self) -> pd.DataFrame:
+        query = self._get_as_df_query().order_by(desc(self.model.id))
         return self._cached_pd_read_sql(query)
 
     @staticmethod

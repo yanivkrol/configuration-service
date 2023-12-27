@@ -1,5 +1,3 @@
-from typing import Optional
-
 from sqlalchemy import and_
 from sqlalchemy.orm import Session, Query
 
@@ -15,7 +13,7 @@ class GoogleParallelPredictionsRepository(ConfigurationRepository[GoogleParallel
     def __init__(self, session: Session):
         super().__init__(GoogleParallelPredictions, session)  # TODO fix types
 
-    def _get_as_df_query(self, limit: Optional[int] = None) -> Query:
+    def _get_as_df_query(self) -> Query:
         return self.session.query(GoogleParallelPredictions, GoogleAccount, Partner) \
             .join(GoogleAccount, and_(
                 GoogleParallelPredictions.account_id == GoogleAccount.account_id,

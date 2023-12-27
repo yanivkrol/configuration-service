@@ -1,5 +1,3 @@
-from typing import Optional
-
 from sqlalchemy import and_
 from sqlalchemy.orm import Session, Query
 
@@ -14,7 +12,7 @@ class GoogleSiteclickPostbackRepository(ConfigurationRepository[GoogleSiteclickP
     def __init__(self, session: Session):
         super().__init__(GoogleSiteclickPostback, session)  # TODO fix types
 
-    def _get_as_df_query(self, limit: Optional[int] = None) -> Query:
+    def _get_as_df_query(self) -> Query:
         return self.session.query(GoogleSiteclickPostback, GoogleAccount, GoogleAccountCampaignMappings) \
             .join(GoogleAccount, and_(
                 GoogleSiteclickPostback.account_id == GoogleAccount.account_id,

@@ -29,7 +29,7 @@ class BaseRepository(ABC, Generic[ModelT]):
     def _cached_get(query: Query) -> list[ModelT]:
         return query.all()
 
-    def clear_cache(self, limit: Optional[int] = None) -> None:
+    def clear_cache(self) -> None:
         raise NotImplementedError("Should be used once streamlit provides a way to clear specific cache")
         # cache_data_ext.clear(self._get_as_df_query())
         # cache_data_ext.clear(self._get_query())

@@ -124,7 +124,6 @@ companies = [
         "domain": "cappsool.com"
     },
 ]
-QUERY_SIZE_LIMIT = 10
 
 
 user_email = st_oauth(label='Login with Okta') if st.secrets['use_login'] else "john.doe@naturalint.com"  # TODO env var
@@ -174,7 +173,7 @@ c_frontend = confiugration_frontend.get_frontend(get_state(State.CONFIGURATION))
 c_repository = configuration_repository.get_repository(get_state(State.CONFIGURATION))
 c_middleware = configuration_middleware.get_middleware(get_state(State.CONFIGURATION))
 
-full_df = c_repository.get_as_df(limit=QUERY_SIZE_LIMIT)
+full_df = c_repository.get_as_df()
 with st.sidebar.container():
     editing = get_state(State.EDITING)
     "Filters:"
