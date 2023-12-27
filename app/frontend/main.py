@@ -75,7 +75,10 @@ def clicked_btn_continue_save(df):
             middleware.apply_changes(c_repository, c_middleware, df, data_editor["deleted_rows"],
                                      data_editor["edited_rows"], new_data)
         except IntegrityError as e:
-            handle_save_error(e, str(e.orig))
+            if "Duplicate entry" in str(e.orig):
+                handle_save_error(e, "Configuration already exists.")
+            else:
+                handle_save_error(e, str(e.orig))
             return
         except Exception as e:
             handle_save_error(e)
