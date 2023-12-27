@@ -16,6 +16,8 @@ class GooglePostbackWithCommissionRepository(ConfigurationRepository[GooglePostb
         return self.session.query(GooglePostbackWithCommission, GoogleAccount, GoogleAccountCampaignMappings) \
             .join(GoogleAccount, and_(
                 GooglePostbackWithCommission.account_id == GoogleAccount.account_id,
-                GoogleAccount.mcc_name == get_state(State.COMPANY)['full'],  # TODO how not to use streamlit
+                GoogleAccount.mcc_id == get_state(State.COMPANY)['google_id'],  # TODO how not to use streamlit
             )) \
-            .outerjoin(GoogleAccountCampaignMappings,GooglePostbackWithCommission.campaign_id == GoogleAccountCampaignMappings.campaign_id)
+            .outerjoin(GoogleAccountCampaignMappings,
+                GooglePostbackWithCommission.campaign_id == GoogleAccountCampaignMappings.campaign_id
+            )

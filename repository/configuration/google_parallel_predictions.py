@@ -17,10 +17,12 @@ class GoogleParallelPredictionsRepository(ConfigurationRepository[GoogleParallel
         return self.session.query(GoogleParallelPredictions, GoogleAccount, Partner) \
             .join(GoogleAccount, and_(
                 GoogleParallelPredictions.account_id == GoogleAccount.account_id,
-                GoogleAccount.mcc_name == get_state(State.COMPANY)['full'],  # TODO how not to use streamlit
+                GoogleAccount.mcc_id == get_state(State.COMPANY)['google_id'],  # TODO how not to use streamlit
             )) \
             .join(PartnerCompany, and_(
                 GoogleParallelPredictions.partner_id == PartnerCompany.partner_id,
                 PartnerCompany.company == get_state(State.COMPANY)['shortened'],  # TODO how not to use streamlit
             )) \
-            .join(Partner, GoogleParallelPredictions.partner_id == Partner.partner_id)
+            .join(Partner,
+                GoogleParallelPredictions.partner_id == Partner.partner_id
+            )

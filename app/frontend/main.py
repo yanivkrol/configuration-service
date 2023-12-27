@@ -1,3 +1,5 @@
+import json
+
 import streamlit as st
 from sqlalchemy.exc import IntegrityError
 from st_oauth import st_oauth
@@ -109,23 +111,8 @@ def clicked_btn_add_add_new():
     get_state(State.NEW_DATA).append(get_state(State.NEW_CONFIGURATION))
 
 
-companies = [
-    {
-        "shortened": "ni",
-        "full": "Natural Intelligence",
-        "domain": "naturalint.com"
-    },
-    {
-        "shortened": "bi",
-        "full": "Better Impression",
-        "domain": "bimpression.com"
-    },
-    {
-        "shortened": "cappsool",
-        "full": "Cappsool",
-        "domain": "cappsool.com"
-    },
-]
+with open('./resources/companies.json', 'r') as file:
+    companies = json.load(file)
 
 
 user_email = st_oauth(label='Login with Okta') if st.secrets['use_login'] else "john.doe@naturalint.com"  # TODO env var
