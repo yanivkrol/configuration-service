@@ -37,12 +37,12 @@ class GooglePostbackWithCommissionFrontend(BaseConfigurationFrontend[GooglePostb
         )
 
     def render_new_section(self) -> GooglePostbackWithCommissionSelection | None:
-        selected_account, all_campaigns_checked, selected_campaign = account_and_allable_campaign_selection()
+        selected_account, selected_campaign = account_and_allable_campaign_selection()
 
-        if all([selected_account, all_campaigns_checked or selected_campaign]):
+        if all([selected_account, selected_campaign]):
             return GooglePostbackWithCommissionSelection(
                 account=selected_account,
-                campaign_mapping=None if all_campaigns_checked else selected_campaign,
+                campaign_mapping=None if selected_campaign == "__ALL__" else selected_campaign,
                 active=True,
             )
         return None

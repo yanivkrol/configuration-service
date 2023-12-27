@@ -1,3 +1,5 @@
+from typing import Literal
+
 import streamlit as st
 
 from model.dim.google_account import GoogleAccount
@@ -5,7 +7,7 @@ from model.dim.google_account_campaign_mappings import GoogleAccountCampaignMapp
 from repository.dim_repository import dim_google_account_campaigns_mapping_repository, dim_google_account_repository
 
 
-def account_and_allable_campaign_selection() -> tuple[GoogleAccount, bool, GoogleAccountCampaignMappings]:
+def account_and_allable_campaign_selection() -> tuple[GoogleAccount, GoogleAccountCampaignMappings | Literal["__ALL__"]]:
     account_campaign_mappings = dim_google_account_campaigns_mapping_repository.get()  # TODO only for current company
     accounts = dim_google_account_repository.get()  # TODO only for current company
 
@@ -19,15 +21,13 @@ def account_and_allable_campaign_selection() -> tuple[GoogleAccount, bool, Googl
         format_func=lambda a: a.account_name,
         index=None,
     )
-    all_campaigns_checked = st.checkbox("All campaigns")
+
+    campaigns = ["__ALL__"] + get_campaigns(selected_account.account_id) if selected_account else []
     selected_campaign = columns[1].selectbox(
         "Campaign name",
-        options=get_campaigns(selected_account.account_id) if selected_account else [],
-
-        # this is hack for when all_campaigns checked after a campaign was selected
-        format_func=lambda m: m.campaign_name if not all_campaigns_checked else "",
+        options=campaigns,
+        format_func=lambda m: "All campaigns" if m == "__ALL__" else m.campaign_name,
         index=None,
-        disabled=all_campaigns_checked,
     )
 
-    return selected_account, all_campaigns_checked, selected_campaign
+    return selected_account, selected_campaign
