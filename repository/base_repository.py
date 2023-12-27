@@ -1,7 +1,6 @@
 from abc import ABC
 from typing import Type, TypeVar, Optional, Generic
 
-import streamlit as st
 from sqlalchemy.orm import Session, DeclarativeBase, Query
 
 
@@ -19,15 +18,10 @@ class BaseRepository(ABC, Generic[ModelT]):
 
     def get(self) -> list[ModelT]:
         query = self._get_query()
-        return self._cached_get(query)
+        return query.all()
 
     def _get_query(self) -> Query:
         return self.session.query(self.model)
-
-    @staticmethod
-    # @st.cache_resource(ttl=300, show_spinner="Loading data...", hash_funcs={Query: hash_query})
-    def _cached_get(query: Query) -> list[ModelT]:
-        return query.all()
 
     def clear_cache(self) -> None:
         raise NotImplementedError("Should be used once streamlit provides a way to clear specific cache")

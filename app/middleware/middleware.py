@@ -1,11 +1,12 @@
 from typing import List
 
 import pandas as pd
+import streamlit as st
 
 from app.frontend.confiugration import Selection
 from db_config import db_session
-from .configuration import BaseConfigurationMiddleware
 from repository.configuration import ConfigurationRepository
+from .configuration import BaseConfigurationMiddleware
 
 
 def apply_changes(repo: ConfigurationRepository,
@@ -23,6 +24,7 @@ def apply_changes(repo: ConfigurationRepository,
         print(e)
         db_session.rollback()
         raise
+    _clear_configurations_cache()
 
 
 def _apply_deletions(repo: ConfigurationRepository, filtered_df: pd.DataFrame, deleted_rows: List[int]):
@@ -41,3 +43,7 @@ def _apply_edits(repo: ConfigurationRepository, filtered_df: pd.DataFrame, edite
 def _apply_additions(repo: ConfigurationRepository, middleware: BaseConfigurationMiddleware, new_data: list[Selection]):
     for selection in new_data:
         repo.add(middleware.to_database_object(selection))
+
+
+def _clear_configurations_cache():
+    st.cache_data.clear()

@@ -89,7 +89,6 @@ def handle_save_error(e: Exception, err_msg: str = None):
 
 
 def handle_save_success():
-    # st.cache_data.clear()  # TODO maybe we will have api to clear specific keys in the future
     reset_main_section_state()
     st.markdown("""<div style="margin-top: 25px;"></div>""", unsafe_allow_html=True)
     st.success("Saved successfully!", icon="🚀")
@@ -226,17 +225,6 @@ if get_state(State.CONFIRMING_SAVE):
     col1, col2, margin = st.columns((1, 1, 6))
     col1.button("Cancel", type="secondary", on_click=clicked_btn_cancel_save, use_container_width=True)
     col2.button("Continue", type="primary", on_click=lambda: clicked_btn_continue_save(filtered_df), use_container_width=True)
-
-
-# if get_state(State.SAVE_CONFIRMED):
-#     set_state(State.SAVE_CONFIRMED, False)
-#     with st.spinner("Saving..."):
-#         data_editor = get_state(State.DATA_EDITOR)
-#         process_changes.apply_changes(c_repository, df, data_editor["deleted_rows"], data_editor["edited_rows"])
-#         st.cache_data.clear()  # TODO maybe we will have api to clear specific keys in the future
-#         reset_main_section_state()
-#         st.success("Saved successfully!", icon="🚀")
-#         df = load_df(c_frontend, c_repository)
 
 
 # ---------------- display changes ----------------

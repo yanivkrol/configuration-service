@@ -3,13 +3,14 @@ from abc import abstractmethod
 from typing import TypeVar, Type
 
 import pandas as pd
+import streamlit as st
 from sqlalchemy import desc
 from sqlalchemy.orm import Session, Query
 
 from configurations import ConfigurationId
 from db_config import db_session
 from model.serializable_model import SerializableModel
-from repository.base_repository import BaseRepository
+from repository.base_repository import BaseRepository, hash_query
 
 ConfigurationModelT = TypeVar('ConfigurationModelT', bound=SerializableModel)
 
@@ -23,7 +24,7 @@ class ConfigurationRepository(BaseRepository[ConfigurationModelT]):
         return self._cached_pd_read_sql(query)
 
     @staticmethod
-    # @st.cache_data(ttl=300, show_spinner="Loading data...", hash_funcs={Query: hash_query})
+    @st.cache_data(ttl=300, show_spinner="Loading data...", hash_funcs={Query: hash_query})
     def _cached_pd_read_sql(query: Query) -> pd.DataFrame:
         return pd.read_sql(query.statement, query.session.bind, index_col="id")
 
