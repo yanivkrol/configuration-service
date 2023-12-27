@@ -1,23 +1,64 @@
 import sys
-from typing import TypeVar, Protocol
+from abc import ABC, abstractmethod
+from typing import TypeVar, Type, Generic
 
-from configurations import ConfigurationId
+import pandas as pd
+import streamlit as st
+from sqlalchemy import desc
+from sqlalchemy.orm import Session, Query
+
 from app.frontend.confiugration import Selection
+from configurations import ConfigurationId
+from db_config import SessionMaker
 from model.serializable_model import SerializableModel
 
 S = TypeVar('S', bound=Selection)
 T = TypeVar('T', bound=SerializableModel)
 
 
-class BaseConfigurationMiddleware(Protocol[S, T]):
+def hash_query(query: Query) -> str:
+    return str(query.statement.compile(compile_kwargs={"literal_binds": True}))
+
+
+class BaseConfigurationMiddleware(ABC, Generic[S, T]):
+    @abstractmethod
+    def get_model_type(self) -> Type[T]:
+        ...
+
+    @abstractmethod
     def to_database_object(self, selection: S) -> T:
         ...
 
+    def to_display_dataframe(self, selections: list[S]) -> pd.DataFrame:
+        return pd.DataFrame([self._to_display_dict(selection) for selection in selections])
 
-from app.middleware.configuration.google_external_product_middleware import GoogleExternalProductMiddleware
-from app.middleware.configuration.google_siteclick_postback_middleware import GoogleSiteclickPostbackMiddleware
-from app.middleware.configuration.google_parallel_predictions_middleware import GoogleParallelPredictionsMiddleware
-from app.middleware.configuration.google_postback_with_commission_middleware import GooglePostbackWithCommissionMiddleware
+    @abstractmethod
+    def _to_display_dict(self, selection: S) -> dict:
+        """
+        This function should return a dict that has all the fields needed for display,
+        Similarly to the output of get_display_dataframe
+        """
+        ...
+
+    @abstractmethod
+    def _compose_query_for_display(self, session: Session) -> Query:
+        ...
+
+    def get_display_dataframe(self) -> pd.DataFrame:
+        session = SessionMaker()
+        query = self._compose_query_for_display(session)
+        query = query.order_by(desc('id'))
+        return self._cached_pd_read_sql(query)
+
+    @st.cache_data(show_spinner="Loading data...", hash_funcs={Query: hash_query})
+    def _cached_pd_read_sql(_self, query: Query) -> pd.DataFrame:
+        return pd.read_sql(query.statement, query.session.bind, index_col='id')
+
+
+from .google_external_product_middleware import GoogleExternalProductMiddleware
+from .google_siteclick_postback_middleware import GoogleSiteclickPostbackMiddleware
+from .google_parallel_predictions_middleware import GoogleParallelPredictionsMiddleware
+from .google_postback_with_commission_middleware import GooglePostbackWithCommissionMiddleware
 
 _google_external_product_middleware = GoogleExternalProductMiddleware()
 _google_siteclick_postback_middleware = GoogleSiteclickPostbackMiddleware()

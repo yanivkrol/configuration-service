@@ -1,16 +1,12 @@
 import json
 
-import streamlit as st
 from sqlalchemy.exc import IntegrityError
 from st_oauth import st_oauth
 
-st.set_page_config(layout="wide")
-
-from configurations import get_all_configurations
-from app.middleware import middleware
-import app.frontend.confiugration as confiugration_frontend
-import repository.configuration as configuration_repository
+import app.frontend.confiugration as configuration_frontend
 import app.middleware.configuration as configuration_middleware
+from app.middleware.changes_applier import ChangesApplier
+from configurations import get_all_configurations
 from state_management import *
 
 
@@ -73,9 +69,10 @@ def clicked_btn_continue_save(df):
     with st.spinner("Saving..."):
         data_editor = get_state(State.DATA_EDITOR)
         new_data = get_state(State.NEW_DATA)
+        changes_applier = ChangesApplier(c_middleware, df, data_editor["deleted_rows"], data_editor["edited_rows"],
+                                         new_data)
         try:
-            middleware.apply_changes(c_repository, c_middleware, df, data_editor["deleted_rows"],
-                                     data_editor["edited_rows"], new_data)
+            changes_applier.apply_changes()
         except IntegrityError as e:
             if "Duplicate entry" in str(e.orig):
                 handle_save_error(e, "Configuration already exists.")
@@ -114,6 +111,7 @@ def clicked_btn_add_add_new():
 with open('./resources/companies.json', 'r') as file:
     companies = json.load(file)
 
+st.set_page_config(layout="wide")
 
 user_email = st_oauth(label='Login with Okta') if st.secrets['use_login'] else "john.doe@naturalint.com"  # TODO env var
 
@@ -151,18 +149,17 @@ with st.sidebar.container():
     st.selectbox(
         label="Configuration:",
         options=get_all_configurations(),
-        format_func=lambda c: confiugration_frontend.get_frontend(c).label,
+        format_func=lambda c: configuration_frontend.get_frontend(c).label,
         on_change=reset_main_section_state,
         key=State.CONFIGURATION
     )
 
     st.divider()
 
-c_frontend = confiugration_frontend.get_frontend(get_state(State.CONFIGURATION))
-c_repository = configuration_repository.get_repository(get_state(State.CONFIGURATION))
+c_frontend = configuration_frontend.get_frontend(get_state(State.CONFIGURATION))
 c_middleware = configuration_middleware.get_middleware(get_state(State.CONFIGURATION))
 
-full_df = c_repository.get_as_df()
+full_df = c_middleware.get_display_dataframe()
 with st.sidebar.container():
     editing = get_state(State.EDITING)
     "Filters:"
@@ -240,7 +237,7 @@ def display_changes():
             """, unsafe_allow_html=True)
 
             if new_data:
-                new_configs_df = c_frontend.create_df_from_selections(new_data)
+                new_configs_df = c_middleware.to_display_dataframe(new_data)
                 st.write("New configurations:")
                 st.dataframe(
                     c_frontend.get_df_for_display(new_configs_df),

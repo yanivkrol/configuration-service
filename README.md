@@ -32,10 +32,12 @@ Make sure the Python Interpreter is set to the virtual env created above: `/venv
 
 ### Adding a new configuration:
 
-To add a configuration with the name "X" (e.g. "ExternalProduct"), Implement the following interfaces:
-- `X` - the configuration object, which is also saved in the database.
-- `XSelection` - the user's selection for a new configuration. from which an `X` object is created.
-- `XConfigurationFrotnend` - incharge of displaying the data and manipulation of it by the user.
-- `XConfigurationMiddleware` - handles data manipulation between the database and the frontend, can be regarded as the 'Backend logic'.
-- `XConfigurationRepository` - handles the database operations.
- # TODO add to confiugrations.py and all other _ variables
+To add a configuration with the name "Example" (e.g. "ExternalProduct"), Implement the following interfaces:
+- `Example` - the configuration object, which is also saved in the database.
+- `ExampleSelection` - the user's selection for a new configuration. from which an `Example` object is created.
+- `ExampleConfigurationFrotnend` - incharge of displaying the data and manipulation of it by the user.
+- `ExampleConfigurationMiddleware` - handles data manipulation between the database and the frontend, can be regarded as the 'Backend logic'.
+- `ExampleConfigurationResponse` - transforms the configurations to be served as API.  
+
+For each of the above (except `ExampleSelection`) an entry should be added in their respective `__init__.py` file, 
+so the main script or the controller can access them.

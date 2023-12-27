@@ -1,15 +1,14 @@
-from collections import defaultdict
 from dataclasses import dataclass
 
-import pandas as pd
 import streamlit as st
 
 from app.frontend.confiugration import BaseConfigurationFrontend
 from app.frontend.confiugration import Selection
+from app.frontend.state_management import get_state, State
+from app.middleware.dim_service import DimensionsService
 from model.configuration.google_parallel_predictions import DealType
 from model.dim.google_account import GoogleAccount
 from model.dim.partner import Partner
-from repository.dim_repository import dim_google_account_repository, dim_partner_repository
 
 
 @dataclass
@@ -34,8 +33,10 @@ class GoogleParallelPredictionsFrontend(BaseConfigurationFrontend[GoogleParallel
         )
 
     def render_new_section(self) -> GoogleParallelPredictionsSelection | None:
-        accounts = dim_google_account_repository.get()  # TODO only for current company
-        partners = dim_partner_repository.get()  # TODO only for current company
+        dim_service = DimensionsService()
+        company = get_state(State.COMPANY)
+        accounts = dim_service.get_google_accounts(company['google_id'])
+        partners = dim_service.get_partners(company['shortened'])
 
         columns = st.columns(3)
         selected_account = columns[0].selectbox(
@@ -65,15 +66,3 @@ class GoogleParallelPredictionsFrontend(BaseConfigurationFrontend[GoogleParallel
                 active=True,
             )
         return None
-
-    def create_df_from_selections(self, selections: list[GoogleParallelPredictionsSelection]) -> pd.DataFrame:
-        selections_flattened = defaultdict(list)
-        for selection in selections:
-            selection_flattened = {}
-            selection_flattened.update(selection.account.as_dict())
-            selection_flattened.update(selection.partner.as_dict())
-            selection_flattened['deal_type'] = selection.deal_type
-            selection_flattened['active'] = selection.active
-            for k, v in selection_flattened.items():
-                selections_flattened[k].append(v)
-        return pd.DataFrame(selections_flattened)

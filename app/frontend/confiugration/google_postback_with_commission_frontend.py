@@ -1,7 +1,4 @@
-from collections import defaultdict
 from dataclasses import dataclass
-
-import pandas as pd
 
 from app.frontend.components.column_display_functions import allable_campaign_column
 from app.frontend.components.filters import AllableCampaignFilter
@@ -46,17 +43,3 @@ class GooglePostbackWithCommissionFrontend(BaseConfigurationFrontend[GooglePostb
                 active=True,
             )
         return None
-
-    def create_df_from_selections(self, selections: list[GooglePostbackWithCommissionSelection]) -> pd.DataFrame:
-        selections_flattened = defaultdict(list)
-        for selection in selections:
-            selection_flattened = {}
-            if selection.campaign_mapping:
-                selection_flattened.update(selection.campaign_mapping.as_dict())
-            else:
-                selection_flattened.update(GoogleAccountCampaignMappings().as_dict())
-            selection_flattened.update(selection.account.as_dict())
-            selection_flattened['active'] = selection.active
-            for k, v in selection_flattened.items():
-                selections_flattened[k].append(v)
-        return pd.DataFrame(selections_flattened)

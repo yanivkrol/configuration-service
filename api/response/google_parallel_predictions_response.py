@@ -1,15 +1,11 @@
-from typing_extensions import Any
-
+from model.configuration.google_parallel_predictions import GoogleParallelPredictions
 from . import Response
 
 
-class GoogleParallelPredictionsResponse(Response):
-    def get_key(self, record: Any) -> dict:
+class GoogleParallelPredictionsResponse(Response[GoogleParallelPredictions]):
+    def get_key(self, record: GoogleParallelPredictions) -> dict:
         return {
             'account_id': record.account_id,
             'partner_id': record.partner_id,
             'deal_type': record.deal_type,
         }
-
-    def get_data(self, record: Any) -> dict | None:
-        return None

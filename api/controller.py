@@ -1,9 +1,10 @@
 from flask import Flask, Blueprint, jsonify
 
-import repository.configuration as repository
+import model.configuration as configuration_models
 import response
+from app.middleware.database_interface import DatabaseInterface
 from configurations import get_all_configurations, ConfigurationId
-
+from db_config import SessionMaker
 
 api_v1 = Blueprint('v1', __name__, url_prefix='/api/v1')
 
@@ -13,10 +14,11 @@ def get_config(config_id: ConfigurationId):
     if config_id not in get_all_configurations():
         return jsonify({'error': 'No such configuration ' + config_id}), 400
 
-    c_repository = repository.get_repository(config_id)
-    c_response = response.get_response(config_id)
-    configurations = c_repository.get()
+    session = SessionMaker()
+    c_model = configuration_models.get_model(config_id)
+    configurations = DatabaseInterface(c_model, session).get_all()
 
+    c_response = response.get_response(config_id)
     items = []
     for c in configurations:
         items.append({

@@ -98,16 +98,11 @@ class BaseConfigurationFrontend(ABC, Generic[SelectionT]):
     def render_new_section(self) -> SelectionT | None:
         ...
 
-    @abstractmethod
-    def create_df_from_selections(self, selections: list[SelectionT]) -> pd.DataFrame:
-        """This should return a dataframe that looks like it came from the database."""
-        ...
 
-
-from app.frontend.confiugration.google_external_product_frontend import GoogleExternalProductFrontend
-from app.frontend.confiugration.google_siteclick_postback_frontend import GoogleSiteclickPostbackFrontend
-from app.frontend.confiugration.google_parallel_predictions_frontend import GoogleParallelPredictionsFrontend
-from app.frontend.confiugration.google_postback_with_commission_frontend import GooglePostbackWithCommissionFrontend
+from .google_external_product_frontend import GoogleExternalProductFrontend
+from .google_siteclick_postback_frontend import GoogleSiteclickPostbackFrontend
+from .google_parallel_predictions_frontend import GoogleParallelPredictionsFrontend
+from .google_postback_with_commission_frontend import GooglePostbackWithCommissionFrontend
 
 _google_external_product_frontend = GoogleExternalProductFrontend()
 _google_siteclick_postback_frontend = GoogleSiteclickPostbackFrontend()
