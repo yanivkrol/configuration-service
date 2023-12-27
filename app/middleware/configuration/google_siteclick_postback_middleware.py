@@ -1,5 +1,6 @@
 from app.frontend.confiugration.google_siteclick_postback_frontend import GoogleSiteclickPostbackSelection
 from app.middleware.configuration import BaseConfigurationMiddleware
+from app.middleware.utils import allable_campaign
 from model.configuration.google_siteclick_postback import GoogleSiteclickPostback
 
 
@@ -8,7 +9,6 @@ class GoogleSiteclickPostbackMiddleware(BaseConfigurationMiddleware[GoogleSitecl
         return GoogleSiteclickPostback(
             mcc_id=selection.account.mcc_id,
             account_id=selection.account.account_id,
-            campaign_id=selection.campaign_mapping.campaign_id if selection.campaign_mapping else "__ALL__",
-            rollout_type=selection.rollout_type,
+            campaign_id=allable_campaign(selection.campaign_mapping),
             active=selection.active,
         )

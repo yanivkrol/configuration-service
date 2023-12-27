@@ -1,5 +1,6 @@
 from app.frontend.confiugration.google_postback_with_commission_frontend import GooglePostbackWithCommissionSelection
 from app.middleware.configuration import BaseConfigurationMiddleware
+from app.middleware.utils import allable_campaign
 from model.configuration.google_postback_with_commission import GooglePostbackWithCommission
 
 
@@ -8,6 +9,6 @@ class GooglePostbackWithCommissionMiddleware(BaseConfigurationMiddleware[GoogleP
         return GooglePostbackWithCommission(
             mcc_id=selection.account.mcc_id,
             account_id=selection.account.account_id,
-            campaign_id=selection.campaign_mapping.campaign_id if selection.campaign_mapping else "__ALL__",
+            campaign_id=allable_campaign(selection.campaign_mapping),
             active=selection.active,
         )
