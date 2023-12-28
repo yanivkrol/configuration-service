@@ -111,7 +111,11 @@ def clicked_btn_add_add_new():
 with open('./resources/companies.json', 'r') as file:
     companies = json.load(file)
 
-st.set_page_config(layout="wide")
+st.set_page_config(
+    page_title="ConfiGO",
+    page_icon="⚙️",
+    layout="wide",
+)
 
 user_email = st_oauth(label='Login with Okta') if st.secrets['use_login'] else "john.doe@naturalint.com"  # TODO env var
 
@@ -131,7 +135,7 @@ st.markdown("""
 
 
 with st.sidebar.container():
-    st.title("Configuration Service")
+    st.title("ConfiGO")
     name, domain = user_email.split('@')
     st.write(f"Hello {name.split('.')[0].title()}! 👋🏼")
 
