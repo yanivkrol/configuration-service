@@ -6,7 +6,7 @@ from st_oauth import st_oauth
 import app.frontend.confiugration as configuration_frontend
 import app.middleware.configuration as configuration_middleware
 from app.middleware.changes_applier import ChangesApplier
-from configurations import get_all_configurations
+from common.configurations import get_all_configurations
 from state_management import *
 
 

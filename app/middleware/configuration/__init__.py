@@ -8,8 +8,8 @@ from sqlalchemy import desc
 from sqlalchemy.orm import Session, Query
 
 from app.frontend.confiugration import Selection
-from configurations import ConfigurationId
-from db_config import SessionMaker
+from common.configurations import ConfigurationId
+from common.db_config import SessionMaker
 from model.serializable_model import SerializableModel
 
 S = TypeVar('S', bound=Selection)

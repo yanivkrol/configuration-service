@@ -6,7 +6,7 @@ import pandas as pd
 import streamlit as st
 
 from app.frontend.components.filters import ColumnFilter
-from configurations import ConfigurationId
+from common.configurations import ConfigurationId
 
 
 class Selection(ABC):

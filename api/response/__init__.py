@@ -3,7 +3,7 @@ from typing import Protocol, TypeVar
 
 from sqlalchemy.orm import DeclarativeBase
 
-from configurations import ConfigurationId
+from common.configurations import ConfigurationId
 
 T = TypeVar('T', bound=DeclarativeBase)
 

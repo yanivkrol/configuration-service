@@ -2,9 +2,9 @@ from flask import Flask, Blueprint, jsonify
 
 import model.configuration as configuration_models
 import response
-from app.middleware.database_interface import DatabaseInterface
-from configurations import get_all_configurations, ConfigurationId
-from db_config import SessionMaker
+from common.database_interface import DatabaseInterface
+from common.configurations import get_all_configurations, ConfigurationId
+from common.db_config import SessionMaker
 
 api_v1 = Blueprint('v1', __name__, url_prefix='/api/v1')
 

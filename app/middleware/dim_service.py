@@ -1,7 +1,7 @@
 import streamlit as st
 from sqlalchemy import and_
 
-from db_config import SessionMaker
+from common.db_config import SessionMaker
 from model.dim.google_account import GoogleAccount
 from model.dim.google_account_campaign_mappings import GoogleAccountCampaignMappings
 from model.dim.partner import Partner

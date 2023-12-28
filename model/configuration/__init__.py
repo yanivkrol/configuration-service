@@ -3,7 +3,7 @@ from typing import Type
 
 from sqlalchemy.orm import DeclarativeBase
 
-from configurations import ConfigurationId
+from common.configurations import ConfigurationId
 from .google_external_product import GoogleExternalProduct
 from .google_parallel_predictions import GoogleParallelPredictions
 from .google_postback_with_commission import GooglePostbackWithCommission

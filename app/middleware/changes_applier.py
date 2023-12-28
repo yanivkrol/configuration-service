@@ -4,9 +4,9 @@ import pandas as pd
 import streamlit as st
 
 from app.frontend.confiugration import Selection
-from db_config import SessionMaker
+from common.db_config import SessionMaker
 from .configuration import BaseConfigurationMiddleware
-from .database_interface import DatabaseInterface
+from common.database_interface import DatabaseInterface
 
 
 class ChangesApplier:
