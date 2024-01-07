@@ -4,14 +4,14 @@ import streamlit as st
 
 from app.frontend.state_management import get_state, State
 from app.middleware.dim_service import DimensionsService
-from model.dim.google_account import GoogleAccount
-from model.dim.google_account_campaign_mappings import GoogleAccountCampaignMappings
+from model.dim.account import Account
+from model.dim.account_campaign_mapping import AccountCampaignMapping
 
 
-def account_and_allable_campaign_selection() -> tuple[GoogleAccount, GoogleAccountCampaignMappings | Literal["__ALL__"]]:
+def account_and_allable_campaign_selection(source_join: str) -> tuple[Account, AccountCampaignMapping | Literal["__ALL__"]]:
     dim_service = DimensionsService()
-    mcc_id = get_state(State.COMPANY)['google_id']
-    accounts = dim_service.get_google_accounts(mcc_id)
+    mcc_id = get_state(State.COMPANY)[f'{source_join}_id']
+    accounts = dim_service.get_accounts(source_join, mcc_id)
 
     columns = st.columns(2)
     selected_account = columns[0].selectbox(
@@ -23,7 +23,7 @@ def account_and_allable_campaign_selection() -> tuple[GoogleAccount, GoogleAccou
 
     campaigns = []
     if selected_account:
-        campaigns = ["__ALL__"] + dim_service.get_google_campaigns(mcc_id, selected_account.account_id)
+        campaigns = ["__ALL__"] + dim_service.get_campaigns(source_join, selected_account.account_id)
     selected_campaign = columns[1].selectbox(
         "Campaign name",
         options=campaigns,

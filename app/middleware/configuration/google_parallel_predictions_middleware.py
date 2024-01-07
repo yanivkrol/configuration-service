@@ -5,7 +5,7 @@ from app.frontend.confiugration.google_parallel_predictions_frontend import Goog
 from app.frontend.state_management import get_state, State
 from app.middleware.configuration import BaseConfigurationMiddleware
 from model.configuration.google_parallel_predictions import GoogleParallelPredictions
-from model.dim.google_account import GoogleAccount
+from model.dim.account import Account
 from model.dim.partner import Partner
 from model.dim.partner_company import PartnerCompany
 
@@ -31,10 +31,11 @@ class GoogleParallelPredictionsMiddleware(BaseConfigurationMiddleware[GooglePara
         }
 
     def _compose_query_for_display(self, session: Session) -> Query:
-        return session.query(GoogleParallelPredictions, GoogleAccount.account_name, Partner.name) \
-            .join(GoogleAccount, and_(
-                GoogleParallelPredictions.account_id == GoogleAccount.account_id,
-                GoogleAccount.mcc_id == get_state(State.COMPANY)['google_id'],
+        return session.query(GoogleParallelPredictions, Account.account_name, Partner.name) \
+            .join(Account, and_(
+                GoogleParallelPredictions.account_id == Account.account_id,
+                Account.mcc_id == get_state(State.COMPANY)['google_id'],
+                Account.source_join == 'google',
             )) \
             .join(PartnerCompany, and_(
                 GoogleParallelPredictions.partner_id == PartnerCompany.partner_id,

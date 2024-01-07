@@ -5,14 +5,14 @@ from app.frontend.components.filters import AllableCampaignFilter
 from app.frontend.components.new_sections import account_and_allable_campaign_selection
 from app.frontend.confiugration import BaseConfigurationFrontend
 from app.frontend.confiugration import Selection
-from model.dim.google_account import GoogleAccount
-from model.dim.google_account_campaign_mappings import GoogleAccountCampaignMappings
+from model.dim.account import Account
+from model.dim.account_campaign_mapping import AccountCampaignMapping
 
 
 @dataclass
 class GoogleExternalProductSelection(Selection):
-    account: GoogleAccount
-    campaign_mapping: GoogleAccountCampaignMappings
+    account: Account
+    campaign_mapping: AccountCampaignMapping
     active: bool
 
 
@@ -34,7 +34,7 @@ class GoogleExternalProductFrontend(BaseConfigurationFrontend[GoogleExternalProd
         )
 
     def render_new_section(self) -> GoogleExternalProductSelection | None:
-        selected_account, selected_campaign = account_and_allable_campaign_selection()
+        selected_account, selected_campaign = account_and_allable_campaign_selection('google')
 
         if all([selected_account, selected_campaign]):
             return GoogleExternalProductSelection(

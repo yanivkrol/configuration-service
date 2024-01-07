@@ -7,13 +7,13 @@ from app.frontend.confiugration import Selection
 from app.frontend.state_management import get_state, State
 from app.middleware.dim_service import DimensionsService
 from model.configuration.google_parallel_predictions import DealType
-from model.dim.google_account import GoogleAccount
+from model.dim.account import Account
 from model.dim.partner import Partner
 
 
 @dataclass
 class GoogleParallelPredictionsSelection(Selection):
-    account: GoogleAccount
+    account: Account
     partner: Partner
     deal_type: DealType
     active: bool
@@ -35,7 +35,7 @@ class GoogleParallelPredictionsFrontend(BaseConfigurationFrontend[GoogleParallel
     def render_new_section(self) -> GoogleParallelPredictionsSelection | None:
         dim_service = DimensionsService()
         company = get_state(State.COMPANY)
-        accounts = dim_service.get_google_accounts(company['google_id'])
+        accounts = dim_service.get_accounts(company['google_id'])
         partners = dim_service.get_partners(company['shortened'])
 
         columns = st.columns(3)
