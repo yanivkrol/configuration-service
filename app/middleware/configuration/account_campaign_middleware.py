@@ -5,12 +5,12 @@ from sqlalchemy import and_
 from sqlalchemy.orm import Session, Query
 
 from app.frontend.confiugration.account_campaign_frontend import AccountCampaignSelection
-from app.frontend.state_management import get_state, State
 from app.middleware.configuration import BaseConfigurationMiddleware
 from app.middleware.utils import allable_campaign
-from model import Base
-from model.dim.account import Account
-from model.dim.account_campaign_mapping import AccountCampaignMapping
+from app.state_management import get_state, State
+from common.model import Base
+from common.model.dim.account import Account
+from common.model.dim.account_campaign_mapping import AccountCampaignMapping
 
 T = TypeVar('T', bound=Base)
 

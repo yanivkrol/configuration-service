@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session, Query
 from app.frontend.confiugration import Selection
 from common.configurations import ConfigurationId
 from common.db_config import SessionMaker
-from model import Base
+from common.model import Base
 
 S = TypeVar('S', bound=Selection)
 T = TypeVar('T', bound=Base)

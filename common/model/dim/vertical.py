@@ -1,6 +1,6 @@
 from sqlalchemy import Column, String
 
-from model import Base
+from common.model import Base
 
 
 class Vertical(Base):

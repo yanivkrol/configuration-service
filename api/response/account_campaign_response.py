@@ -1,7 +1,7 @@
 from typing import TypeVar
 
 from api.response import Response
-from model import Base
+from common.model import Base
 
 T = TypeVar('T', bound=Base)
 

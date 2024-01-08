@@ -1,5 +1,5 @@
 from sqlalchemy import Integer, String, Column, Boolean, Enum
-from model import Base
+from common.model import Base
 
 from common.enums import DealType
 

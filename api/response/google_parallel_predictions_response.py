@@ -1,4 +1,4 @@
-from model.configuration.google_parallel_predictions import GoogleParallelPredictions
+from common.model.configuration.google_parallel_predictions import GoogleParallelPredictions
 from . import Response
 
 

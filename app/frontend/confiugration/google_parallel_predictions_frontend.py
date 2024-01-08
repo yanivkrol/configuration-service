@@ -4,11 +4,11 @@ import streamlit as st
 
 from app.frontend.confiugration import BaseConfigurationFrontend
 from app.frontend.confiugration import Selection
-from app.frontend.state_management import get_state, State
+from app.state_management import get_state, State
 from app.middleware.dim_service import dim_service
-from model.configuration.google_parallel_predictions import DealType
-from model.dim.account import Account
-from model.dim.partner import Partner
+from common.model.configuration.google_parallel_predictions import DealType
+from common.model.dim.account import Account
+from common.model.dim.partner import Partner
 
 
 @dataclass

@@ -2,7 +2,7 @@ import sys
 from typing import Protocol, TypeVar
 
 from common.configurations import ConfigurationId
-from model import Base
+from common.model import Base
 
 T = TypeVar('T', bound=Base)
 

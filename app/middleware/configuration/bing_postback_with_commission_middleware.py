@@ -1,5 +1,5 @@
 from app.middleware.configuration.account_campaign_middleware import AccountCampaignMiddleware
-from model.configuration.bing_postback_with_commission import BingPostbackWithCommission
+from common.model.configuration.bing_postback_with_commission import BingPostbackWithCommission
 
 
 class BingPostbackWithCommissionMiddleware(AccountCampaignMiddleware[BingPostbackWithCommission]):

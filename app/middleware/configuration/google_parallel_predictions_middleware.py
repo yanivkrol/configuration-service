@@ -2,12 +2,12 @@ from sqlalchemy import and_
 from sqlalchemy.orm import Session, Query
 
 from app.frontend.confiugration.google_parallel_predictions_frontend import GoogleParallelPredictionsSelection
-from app.frontend.state_management import get_state, State
+from app.state_management import get_state, State
 from app.middleware.configuration import BaseConfigurationMiddleware
-from model.configuration.google_parallel_predictions import GoogleParallelPredictions
-from model.dim.account import Account
-from model.dim.partner import Partner
-from model.dim.partner_company import PartnerCompany
+from common.model.configuration.google_parallel_predictions import GoogleParallelPredictions
+from common.model.dim.account import Account
+from common.model.dim.partner import Partner
+from common.model.dim.partner_company import PartnerCompany
 
 
 class GoogleParallelPredictionsMiddleware(BaseConfigurationMiddleware[GoogleParallelPredictionsSelection, GoogleParallelPredictions]):

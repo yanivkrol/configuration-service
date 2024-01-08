@@ -1,4 +1,4 @@
-from model.configuration import GoogleActivePostback
+from common.model.configuration import GoogleActivePostback
 from . import Response
 
 

@@ -2,13 +2,13 @@ import streamlit as st
 from sqlalchemy import and_
 
 from common.db_config import SessionMaker
-from model.dim.account import Account
-from model.dim.account_campaign_mapping import AccountCampaignMapping
-from model.dim.partner import Partner
-from model.dim.partner_company import PartnerCompany
-from model.dim.site import Site
-from model.dim.site_vertical_mapping import SiteVerticalMapping
-from model.dim.vertical import Vertical
+from common.model.dim.account import Account
+from common.model.dim.account_campaign_mapping import AccountCampaignMapping
+from common.model.dim.partner import Partner
+from common.model.dim.partner_company import PartnerCompany
+from common.model.dim.site import Site
+from common.model.dim.site_vertical_mapping import SiteVerticalMapping
+from common.model.dim.vertical import Vertical
 
 MINUTE = 60
 

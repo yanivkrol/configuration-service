@@ -1,6 +1,6 @@
 from sqlalchemy import Column, String, BigInteger
 
-from model import Base
+from common.model import Base
 
 
 class SiteVerticalMapping(Base):

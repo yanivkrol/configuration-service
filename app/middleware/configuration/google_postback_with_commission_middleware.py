@@ -1,5 +1,5 @@
 from app.middleware.configuration.account_campaign_middleware import AccountCampaignMiddleware
-from model.configuration.google_postback_with_commission import GooglePostbackWithCommission
+from common.model.configuration import GooglePostbackWithCommission
 
 
 class GooglePostbackWithCommissionMiddleware(AccountCampaignMiddleware[GooglePostbackWithCommission]):

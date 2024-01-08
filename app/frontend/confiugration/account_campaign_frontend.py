@@ -6,10 +6,10 @@ import streamlit as st
 from app.frontend.components.filters import AllableCampaignFilter
 from app.frontend.confiugration import BaseConfigurationFrontend
 from app.frontend.confiugration import Selection
-from app.frontend.state_management import get_state, State
+from app.state_management import get_state, State
 from app.middleware.dim_service import dim_service
-from model.dim.account import Account
-from model.dim.account_campaign_mapping import AccountCampaignMapping
+from common.model.dim.account import Account
+from common.model.dim.account_campaign_mapping import AccountCampaignMapping
 
 
 @dataclass

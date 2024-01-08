@@ -1,6 +1,6 @@
 from flask import Flask, Blueprint, jsonify
 
-import model.configuration as configuration_models
+import common.model.configuration as configuration_models
 import response
 from common.database_interface import DatabaseInterface
 from common.configurations import get_all_configurations, ConfigurationId

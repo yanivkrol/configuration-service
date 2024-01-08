@@ -1,5 +1,5 @@
 from app.middleware.configuration.account_campaign_middleware import AccountCampaignMiddleware
-from model.configuration.google_external_product import GoogleExternalProduct
+from common.model.configuration.google_external_product import GoogleExternalProduct
 
 
 class GoogleExternalProductMiddleware(AccountCampaignMiddleware[GoogleExternalProduct]):

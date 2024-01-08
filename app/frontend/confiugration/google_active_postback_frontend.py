@@ -4,12 +4,12 @@ import streamlit as st
 
 from app.frontend.confiugration import BaseConfigurationFrontend
 from app.frontend.confiugration import Selection
-from app.frontend.state_management import get_state, State
+from app.state_management import get_state, State
 from app.middleware.dim_service import dim_service
-from model.configuration.google_active_postback import TrafficJoin
-from model.dim.account import Account
-from model.dim.site import Site
-from model.dim.vertical import Vertical
+from common.model.configuration.google_active_postback import TrafficJoin
+from common.model.dim.account import Account
+from common.model.dim.site import Site
+from common.model.dim.vertical import Vertical
 
 
 @dataclass

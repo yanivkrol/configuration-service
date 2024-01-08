@@ -2,7 +2,7 @@ import sys
 from typing import Type
 
 from common.configurations import ConfigurationId
-from model import Base
+from common.model import Base
 from .bing_postback_with_commission import BingPostbackWithCommission
 from .google_active_postback import GoogleActivePostback
 from .google_external_product import GoogleExternalProduct

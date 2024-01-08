@@ -1,4 +1,4 @@
-from model.dim.account_campaign_mapping import AccountCampaignMapping
+from common.model.dim.account_campaign_mapping import AccountCampaignMapping
 
 
 def allable_campaign(campaign_mapping: AccountCampaignMapping | None) -> str:

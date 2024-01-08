@@ -2,12 +2,12 @@ from sqlalchemy import and_
 from sqlalchemy.orm import Session, Query
 
 from app.frontend.confiugration.google_active_postback_frontend import GoogleActivePostbackSelection
-from app.frontend.state_management import get_state, State
+from app.state_management import get_state, State
 from app.middleware.configuration import BaseConfigurationMiddleware
-from model.configuration import GoogleActivePostback
-from model.dim.account import Account
-from model.dim.site import Site
-from model.dim.vertical import Vertical
+from common.model.configuration import GoogleActivePostback
+from common.model.dim.account import Account
+from common.model.dim.site import Site
+from common.model.dim.vertical import Vertical
 
 
 class GoogleActivePostbackMiddleware(BaseConfigurationMiddleware[GoogleActivePostbackSelection, GoogleActivePostback]):
@@ -17,7 +17,6 @@ class GoogleActivePostbackMiddleware(BaseConfigurationMiddleware[GoogleActivePos
     def to_database_object(self, selection: GoogleActivePostbackSelection) -> GoogleActivePostback:
         return GoogleActivePostback(
             mcc_id=selection.account.mcc_id,
-            mcc_name=selection.account.mcc_name,
             account_id=selection.account.account_id,
             site_id=selection.site.id,
             vertical_id=selection.vertical.id,

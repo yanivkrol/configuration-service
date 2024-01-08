@@ -1,7 +1,7 @@
 from sqlalchemy import Integer, String, Column, Boolean, Enum
 
 from common.enums import TrafficJoin
-from model import Base
+from common.model import Base
 
 
 class GoogleActivePostback(Base):

@@ -1,10 +1,10 @@
 from sqlalchemy import Column, String, BigInteger
 
-from model import Base
+from common.model import Base
 
 
-class Site(Base):
-    __tablename__ = 'dim_site'
+class Partner(Base):
+    __tablename__ = 'dim_partner'
 
     id = Column(BigInteger, primary_key=True)
     name = Column(String)

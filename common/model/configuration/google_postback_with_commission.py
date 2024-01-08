@@ -1,10 +1,10 @@
 from sqlalchemy import Integer, String, Column, Boolean
 
-from model import Base
+from common.model import Base
 
 
-class GoogleSiteclickPostback(Base):
-    __tablename__ = 'configuration_google_siteclick_postback'
+class GooglePostbackWithCommission(Base):
+    __tablename__ = 'configuration_google_postback_with_commission'
 
     id = Column(Integer, primary_key=True)
     mcc_id = Column(String)

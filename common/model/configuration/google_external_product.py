@@ -1,6 +1,6 @@
 from sqlalchemy import Integer, String, Column, Boolean
 
-from model import Base
+from common.model import Base
 
 
 class GoogleExternalProduct(Base):
