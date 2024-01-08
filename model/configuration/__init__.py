@@ -3,12 +3,14 @@ from typing import Type
 
 from common.configurations import ConfigurationId
 from model import Base
+from .bing_postback_with_commission import BingPostbackWithCommission
 from .google_active_postback import GoogleActivePostback
 from .google_external_product import GoogleExternalProduct
 from .google_parallel_predictions import GoogleParallelPredictions
 from .google_postback_with_commission import GooglePostbackWithCommission
 from .google_siteclick_postback import GoogleSiteclickPostback
 
+_bing_postback_with_commission_model = BingPostbackWithCommission
 _google_active_postback_model = GoogleActivePostback
 _google_external_product_model = GoogleExternalProduct
 _google_parallel_predictions_model = GoogleParallelPredictions

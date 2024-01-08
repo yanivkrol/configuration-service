@@ -4,7 +4,7 @@ from typing import TypeVar
 from sqlalchemy import and_
 from sqlalchemy.orm import Session, Query
 
-from app.frontend.confiugration import Selection
+from app.frontend.confiugration.account_campaign_frontend import AccountCampaignSelection
 from app.frontend.state_management import get_state, State
 from app.middleware.configuration import BaseConfigurationMiddleware
 from app.middleware.utils import allable_campaign
@@ -12,16 +12,15 @@ from model import Base
 from model.dim.account import Account
 from model.dim.account_campaign_mapping import AccountCampaignMapping
 
-S = TypeVar('S', bound=Selection)
 T = TypeVar('T', bound=Base)
 
 
-class AccountCampaignMiddleware(BaseConfigurationMiddleware[S, T], ABC):
+class AccountCampaignMiddleware(BaseConfigurationMiddleware[AccountCampaignSelection, T], ABC):
     def __init__(self, source_join: str):
         super().__init__()
         self._source_join = source_join
 
-    def to_database_object(self, selection: S) -> T:
+    def to_database_object(self, selection: AccountCampaignSelection) -> T:
         model_type = self.get_model_type()
         return model_type(
             mcc_id=selection.account.mcc_id,
@@ -30,7 +29,7 @@ class AccountCampaignMiddleware(BaseConfigurationMiddleware[S, T], ABC):
             active=selection.active,
         )
 
-    def _to_display_dict(self, selection: S) -> dict:
+    def _to_display_dict(self, selection: AccountCampaignSelection) -> dict:
         return {
             'account_name': selection.account.account_name,
             'campaign_name': selection.campaign_mapping.campaign_name if selection.campaign_mapping else '__ALL__',

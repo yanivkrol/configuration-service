@@ -55,12 +55,14 @@ class BaseConfigurationMiddleware(ABC, Generic[S, T]):
         return pd.read_sql(query.statement, query.session.bind, index_col='id')
 
 
+from .bing_postback_with_commission_middleware import BingPostbackWithCommissionMiddleware
 from .google_active_postback_middleware import GoogleActivePostbackMiddleware
 from .google_external_product_middleware import GoogleExternalProductMiddleware
 from .google_siteclick_postback_middleware import GoogleSiteclickPostbackMiddleware
 from .google_parallel_predictions_middleware import GoogleParallelPredictionsMiddleware
 from .google_postback_with_commission_middleware import GooglePostbackWithCommissionMiddleware
 
+_bing_postback_with_commission_middleware = BingPostbackWithCommissionMiddleware()
 _google_active_postback_middleware = GoogleActivePostbackMiddleware()
 _google_external_product_middleware = GoogleExternalProductMiddleware()
 _google_siteclick_postback_middleware = GoogleSiteclickPostbackMiddleware()

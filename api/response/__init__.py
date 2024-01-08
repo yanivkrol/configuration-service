@@ -15,17 +15,16 @@ class Response(Protocol[T]):
         return None
 
 
+from .account_campaign_response import AccountCampaignResponse
 from .google_active_postback_response import GoogleActivePostbackResponse
-from .google_external_product_response import GoogleExternalProductResponse
 from .google_parallel_predictions_response import GoogleParallelPredictionsResponse
-from .google_postback_with_commission_response import GooglePostbackWithCommissionResponse
-from .google_siteclick_postback_response import GoogleSiteclickPostbackResponse
 
+_bing_postback_with_commission_response = AccountCampaignResponse()
 _google_active_postback_response = GoogleActivePostbackResponse()
-_google_external_product_response = GoogleExternalProductResponse()
+_google_external_product_response = AccountCampaignResponse()
 _google_parallel_predictions_response = GoogleParallelPredictionsResponse()
-_google_postback_with_commission_response = GooglePostbackWithCommissionResponse()
-_google_siteclick_postback_response = GoogleSiteclickPostbackResponse()
+_google_postback_with_commission_response = AccountCampaignResponse()
+_google_siteclick_postback_response = AccountCampaignResponse()
 
 
 def get_response(config_id: ConfigurationId) -> Response:

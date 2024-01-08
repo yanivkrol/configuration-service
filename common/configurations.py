@@ -2,6 +2,7 @@ from typing import Literal, get_args
 
 
 ConfigurationId = Literal[
+    "bing_postback_with_commission",
     "google_active_postback",
     "google_external_product",
     "google_parallel_predictions",
