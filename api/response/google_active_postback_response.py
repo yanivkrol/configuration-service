@@ -8,7 +8,7 @@ class GoogleActivePostbackResponse(Response[GoogleActivePostback]):
             'account_id': record.account_id,
             'site_id': record.site_id,
             'vertical_id': record.vertical_id,
-            'traffic_join': record.traffic_join,
+            'traffic_join': record.traffic_join.name,
         }
 
     def get_data(self, record: GoogleActivePostback) -> dict:

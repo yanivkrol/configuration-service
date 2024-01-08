@@ -7,5 +7,5 @@ class GoogleParallelPredictionsResponse(Response[GoogleParallelPredictions]):
         return {
             'account_id': record.account_id,
             'partner_id': record.partner_id,
-            'deal_type': record.deal_type,
+            'deal_type': record.deal_type.name,
         }
