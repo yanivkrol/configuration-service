@@ -1,9 +1,9 @@
 from sqlalchemy import Integer, String, Column, Boolean
 
-from model.serializable_model import SerializableModel
+from model import Base
 
 
-class GooglePostbackWithCommission(SerializableModel):
+class GooglePostbackWithCommission(Base):
     __tablename__ = 'configuration_google_postback_with_commission'
 
     id = Column(Integer, primary_key=True)

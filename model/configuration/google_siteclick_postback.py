@@ -1,9 +1,9 @@
 from sqlalchemy import Integer, String, Column, Boolean
 
-from model.serializable_model import SerializableModel
+from model import Base
 
 
-class GoogleSiteclickPostback(SerializableModel):
+class GoogleSiteclickPostback(Base):
     __tablename__ = 'configuration_google_siteclick_postback'
 
     id = Column(Integer, primary_key=True)

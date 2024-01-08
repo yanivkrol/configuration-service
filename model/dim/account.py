@@ -1,9 +1,9 @@
 from sqlalchemy import Column, String
 
-from model.serializable_model import SerializableModel
+from model import Base
 
 
-class Account(SerializableModel):
+class Account(Base):
     __tablename__ = 'dim_account'
 
     source_join = Column(String)

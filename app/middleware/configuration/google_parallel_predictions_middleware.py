@@ -17,7 +17,7 @@ class GoogleParallelPredictionsMiddleware(BaseConfigurationMiddleware[GooglePara
     def to_database_object(self, selection: GoogleParallelPredictionsSelection) -> GoogleParallelPredictions:
         return GoogleParallelPredictions(
             account_id=selection.account.account_id,
-            partner_id=selection.partner.partner_id,
+            partner_id=selection.partner.id,
             deal_type=selection.deal_type,
             active=selection.active,
         )
@@ -25,13 +25,13 @@ class GoogleParallelPredictionsMiddleware(BaseConfigurationMiddleware[GooglePara
     def _to_display_dict(self, selection: GoogleParallelPredictionsSelection) -> dict:
         return {
             'account_name': selection.account.account_name,
-            'name': selection.partner.name,
+            'partner_name': selection.partner.name,
             'deal_type': selection.deal_type,
             'active': selection.active,
         }
 
     def _compose_query_for_display(self, session: Session) -> Query:
-        return session.query(GoogleParallelPredictions, Account.account_name, Partner.name) \
+        return session.query(GoogleParallelPredictions, Account.account_name, Partner.name.label('partner_name')) \
             .join(Account, and_(
                 GoogleParallelPredictions.account_id == Account.account_id,
                 Account.mcc_id == get_state(State.COMPANY)['google_id'],
@@ -42,5 +42,5 @@ class GoogleParallelPredictionsMiddleware(BaseConfigurationMiddleware[GooglePara
                 PartnerCompany.company == get_state(State.COMPANY)['shortened'],
             )) \
             .join(Partner,
-                GoogleParallelPredictions.partner_id == Partner.partner_id
+                GoogleParallelPredictions.partner_id == Partner.id
             )

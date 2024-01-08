@@ -1,27 +1,10 @@
-import enum
-
 from sqlalchemy import Integer, String, Column, Boolean, Enum
+from model import Base
 
-from model.serializable_model import SerializableModel
-
-
-class DealType(str, enum.Enum):  # str for JSON serialization
-    LEAD = "Lead"
-    SALE = "Sale"
-    REV_SHARE = "Rev Share"
-    FTD = "FTD"
-    SUBSCRIBER = "Subscriber"
-    SIGN_UP = "Sign Up"
-    REGISTRATION = "Registration"
-    QUALIFIED_LEAD = "Qualified Lead"
-    INSTALL = "Install"
-    OTHER = "Other"
-    CLICK = "Click"
-    MULTI = "Multi"
-    NONE = "None"
+from common.enums import DealType
 
 
-class GoogleParallelPredictions(SerializableModel):
+class GoogleParallelPredictions(Base):
     __tablename__ = 'configuration_google_parallel_predictions'
 
     id = Column(Integer, primary_key=True)

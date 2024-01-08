@@ -1,9 +1,9 @@
 from sqlalchemy import Column, String
 
-from model.serializable_model import SerializableModel
+from model import Base
 
 
-class AccountCampaignMapping(SerializableModel):
+class AccountCampaignMapping(Base):
     __tablename__ = 'dim_account_campaign_mappings'
 
     source_join = Column(String, primary_key=True)

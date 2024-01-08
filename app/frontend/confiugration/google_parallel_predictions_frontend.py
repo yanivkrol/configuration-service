@@ -5,7 +5,7 @@ import streamlit as st
 from app.frontend.confiugration import BaseConfigurationFrontend
 from app.frontend.confiugration import Selection
 from app.frontend.state_management import get_state, State
-from app.middleware.dim_service import DimensionsService
+from app.middleware.dim_service import dim_service
 from model.configuration.google_parallel_predictions import DealType
 from model.dim.account import Account
 from model.dim.partner import Partner
@@ -26,16 +26,16 @@ class GoogleParallelPredictionsFrontend(BaseConfigurationFrontend[GoogleParallel
             label="Google - Parallel Predictions",
             display_name_mapping={
                 "account_name": "Account name",
-                "name": "Partner name",
+                "partner_name": "Partner name",
                 "deal_type": "Deal type",
             },
             enum_columns=["deal_type"],
         )
 
     def render_new_section(self) -> GoogleParallelPredictionsSelection | None:
-        dim_service = DimensionsService()
         company = get_state(State.COMPANY)
-        accounts = dim_service.get_accounts(company['google_id'])
+        source_join = 'google'
+        accounts = dim_service.get_accounts(source_join, company[f'{source_join}_id'])
         partners = dim_service.get_partners(company['shortened'])
 
         columns = st.columns(3)
@@ -47,7 +47,7 @@ class GoogleParallelPredictionsFrontend(BaseConfigurationFrontend[GoogleParallel
         )
         selected_partner = columns[1].selectbox(
             "Partner name",
-            options=partners,  # TODO do we have a mapping somewhere?
+            options=partners,
             format_func=lambda p: p.name,
             index=None,
         )
@@ -58,7 +58,7 @@ class GoogleParallelPredictionsFrontend(BaseConfigurationFrontend[GoogleParallel
             index=None,
         )
 
-        if all([selected_account, selected_partner]):
+        if all([selected_account, selected_partner, selected_deal_type]):
             return GoogleParallelPredictionsSelection(
                 account=selected_account,
                 partner=selected_partner,

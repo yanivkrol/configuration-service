@@ -3,13 +3,12 @@ from typing import Literal
 import streamlit as st
 
 from app.frontend.state_management import get_state, State
-from app.middleware.dim_service import DimensionsService
+from app.middleware.dim_service import dim_service
 from model.dim.account import Account
 from model.dim.account_campaign_mapping import AccountCampaignMapping
 
 
 def account_and_allable_campaign_selection(source_join: str) -> tuple[Account, AccountCampaignMapping | Literal["__ALL__"]]:
-    dim_service = DimensionsService()
     mcc_id = get_state(State.COMPANY)[f'{source_join}_id']
     accounts = dim_service.get_accounts(source_join, mcc_id)
 

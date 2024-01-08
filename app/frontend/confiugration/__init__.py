@@ -99,11 +99,13 @@ class BaseConfigurationFrontend(ABC, Generic[SelectionT]):
         ...
 
 
+from .google_active_postback_frontend import GoogleActivePostbackFrontend
 from .google_external_product_frontend import GoogleExternalProductFrontend
 from .google_siteclick_postback_frontend import GoogleSiteclickPostbackFrontend
 from .google_parallel_predictions_frontend import GoogleParallelPredictionsFrontend
 from .google_postback_with_commission_frontend import GooglePostbackWithCommissionFrontend
 
+_google_active_postback_frontend = GoogleActivePostbackFrontend()
 _google_external_product_frontend = GoogleExternalProductFrontend()
 _google_siteclick_postback_frontend = GoogleSiteclickPostbackFrontend()
 _google_parallel_predictions_frontend = GoogleParallelPredictionsFrontend()

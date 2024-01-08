@@ -10,10 +10,10 @@ from sqlalchemy.orm import Session, Query
 from app.frontend.confiugration import Selection
 from common.configurations import ConfigurationId
 from common.db_config import SessionMaker
-from model.serializable_model import SerializableModel
+from model import Base
 
 S = TypeVar('S', bound=Selection)
-T = TypeVar('T', bound=SerializableModel)
+T = TypeVar('T', bound=Base)
 
 
 def hash_query(query: Query) -> str:
@@ -55,11 +55,13 @@ class BaseConfigurationMiddleware(ABC, Generic[S, T]):
         return pd.read_sql(query.statement, query.session.bind, index_col='id')
 
 
+from .google_active_postback_middleware import GoogleActivePostbackMiddleware
 from .google_external_product_middleware import GoogleExternalProductMiddleware
 from .google_siteclick_postback_middleware import GoogleSiteclickPostbackMiddleware
 from .google_parallel_predictions_middleware import GoogleParallelPredictionsMiddleware
 from .google_postback_with_commission_middleware import GooglePostbackWithCommissionMiddleware
 
+_google_active_postback_middleware = GoogleActivePostbackMiddleware()
 _google_external_product_middleware = GoogleExternalProductMiddleware()
 _google_siteclick_postback_middleware = GoogleSiteclickPostbackMiddleware()
 _google_parallel_predictions_middleware = GoogleParallelPredictionsMiddleware()

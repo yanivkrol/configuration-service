@@ -1,9 +1,9 @@
 from sqlalchemy import Column, String, BigInteger
 
-from model.serializable_model import SerializableModel
+from model import Base
 
 
-class PartnerCompany(SerializableModel):
+class PartnerCompany(Base):
     __tablename__ = 'dim_partner_company'
 
     partner_id = Column(BigInteger, primary_key=True)

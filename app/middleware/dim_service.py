@@ -6,11 +6,14 @@ from model.dim.account import Account
 from model.dim.account_campaign_mapping import AccountCampaignMapping
 from model.dim.partner import Partner
 from model.dim.partner_company import PartnerCompany
+from model.dim.site import Site
+from model.dim.site_vertical_mapping import SiteVerticalMapping
+from model.dim.vertical import Vertical
 
 MINUTE = 60
 
 
-class DimensionsService:
+class _DimensionsService:
     def __init__(self):
         self.session = SessionMaker()
 
@@ -23,7 +26,7 @@ class DimensionsService:
                 ))
                 .all())
 
-    @st.cache_resource(ttl=1 * MINUTE)  # No reason to save for a long time, this is the last stage of selection
+    @st.cache_resource(ttl=1 * MINUTE)  # No reason to save for a long time, because it's for a specific site
     def get_campaigns(_self, source_join: str, account_id: str) -> list[AccountCampaignMapping]:
         return (_self.session.query(AccountCampaignMapping)
                 .where(and_(
@@ -36,7 +39,23 @@ class DimensionsService:
     def get_partners(_self, company_shortened: str) -> list[Partner]:
         return _self.session.query(Partner) \
             .join(PartnerCompany, and_(
-                Partner.partner_id == PartnerCompany.partner_id,
+                PartnerCompany.partner_id == Partner.id,
                 PartnerCompany.company == company_shortened
             )) \
             .all()
+
+    @st.cache_resource(ttl=10 * MINUTE)
+    def get_sites(_self) -> list[Site]:
+        return _self.session.query(Site).all()
+
+    @st.cache_resource(ttl=1 * MINUTE)  # No reason to save for a long time, because it's for a specific site
+    def get_site_verticals(_self, site_id: str) -> list[Vertical]:
+        return _self.session.query(Vertical) \
+            .join(SiteVerticalMapping, and_(
+                SiteVerticalMapping.site_id == site_id,
+                SiteVerticalMapping.vertical_id == Vertical.id,
+            )) \
+            .all()
+
+
+dim_service = _DimensionsService()

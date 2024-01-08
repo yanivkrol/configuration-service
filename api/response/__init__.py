@@ -1,11 +1,10 @@
 import sys
 from typing import Protocol, TypeVar
 
-from sqlalchemy.orm import DeclarativeBase
-
 from common.configurations import ConfigurationId
+from model import Base
 
-T = TypeVar('T', bound=DeclarativeBase)
+T = TypeVar('T', bound=Base)
 
 
 class Response(Protocol[T]):
@@ -16,11 +15,13 @@ class Response(Protocol[T]):
         return None
 
 
+from .google_active_postback_response import GoogleActivePostbackResponse
 from .google_external_product_response import GoogleExternalProductResponse
 from .google_parallel_predictions_response import GoogleParallelPredictionsResponse
 from .google_postback_with_commission_response import GooglePostbackWithCommissionResponse
 from .google_siteclick_postback_response import GoogleSiteclickPostbackResponse
 
+_google_active_postback_response = GoogleActivePostbackResponse()
 _google_external_product_response = GoogleExternalProductResponse()
 _google_parallel_predictions_response = GoogleParallelPredictionsResponse()
 _google_postback_with_commission_response = GooglePostbackWithCommissionResponse()
