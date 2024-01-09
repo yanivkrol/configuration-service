@@ -14,13 +14,13 @@ class DatabaseInterface(Generic[ModelT]):
         return self.session.query(self.model).all()
 
     def get_by_id(self, id: int) -> Optional[ModelT]:
-        return self.session.query(self.model).filter(self.model.id == id).first()
+        return self.session.query(self.model).where(self.model.id == id).first()
 
     def add(self, record) -> None:
         self.session.add(record)
 
     def update(self, id: str, update: dict) -> None:
-        self.session.query(self.model).filter(self.model.id == id).update(update)
+        self.session.query(self.model).where(self.model.id == id).update(update)
 
     def delete(self, id: int) -> None:
         record = self.get_by_id(id)

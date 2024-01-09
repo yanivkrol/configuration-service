@@ -37,6 +37,6 @@ class GoogleActivePostbackMiddleware(BaseConfigurationMiddleware[GoogleActivePos
 
     def _compose_query_for_display(self, session: Session) -> Query:
         return session.query(GoogleActivePostback, Site.name.label('site_name'), Vertical.name.label('vertical_name')) \
-            .filter(GoogleActivePostback.mcc_id == get_state(State.COMPANY)['google_id'],) \
+            .where(GoogleActivePostback.mcc_id == get_state(State.COMPANY)['google_id'],) \
             .join(Site, GoogleActivePostback.site_id == Site.id) \
             .join(Vertical, GoogleActivePostback.vertical_id == Vertical.id)
