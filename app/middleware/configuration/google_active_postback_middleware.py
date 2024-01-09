@@ -17,7 +17,9 @@ class GoogleActivePostbackMiddleware(BaseConfigurationMiddleware[GoogleActivePos
     def to_database_object(self, selection: GoogleActivePostbackSelection) -> GoogleActivePostback:
         return GoogleActivePostback(
             mcc_id=selection.account.mcc_id,
+            mcc_name=selection.account.mcc_name,
             account_id=selection.account.account_id,
+            account_name=selection.account.account_name,
             site_id=selection.site.id,
             vertical_id=selection.vertical.id,
             traffic_join=selection.traffic_join,
@@ -34,11 +36,7 @@ class GoogleActivePostbackMiddleware(BaseConfigurationMiddleware[GoogleActivePos
         }
 
     def _compose_query_for_display(self, session: Session) -> Query:
-        return session.query(GoogleActivePostback, Account.account_name, Site.name.label('site_name'), Vertical.name.label('vertical_name')) \
-            .join(Account, and_(
-                GoogleActivePostback.account_id == Account.account_id,
-                Account.mcc_id == get_state(State.COMPANY)['google_id'],
-                Account.source_join == 'google',
-            )) \
+        return session.query(GoogleActivePostback, Site.name.label('site_name'), Vertical.name.label('vertical_name')) \
+            .filter(GoogleActivePostback.mcc_id == get_state(State.COMPANY)['google_id'],) \
             .join(Site, GoogleActivePostback.site_id == Site.id) \
             .join(Vertical, GoogleActivePostback.vertical_id == Vertical.id)

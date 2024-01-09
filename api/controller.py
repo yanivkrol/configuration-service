@@ -1,12 +1,23 @@
+from enum import Enum
+
 from flask import Flask, Blueprint, jsonify
 
 import common.model.configuration as configuration_models
-import response
-from common.database_interface import DatabaseInterface
 from common.configurations import get_all_configurations, ConfigurationId
+from common.database_interface import DatabaseInterface
 from common.db_config import SessionMaker
 
 api_v1 = Blueprint('v1', __name__, url_prefix='/api/v1')
+
+
+def enums_as_names(dictionary: dict) -> None:
+    """
+    Converts all enums in the dictionary to their names.
+    For example, if the enum is defined as AN_ENUM = "An Enum" then the value will be "AN_ENUM".
+    """
+    for k, v in dictionary.items():
+        if isinstance(v, Enum):
+            dictionary[k] = v.name
 
 
 @api_v1.route('/config/<string:config_id>', methods=['GET'])
@@ -17,17 +28,10 @@ def get_config(config_id: ConfigurationId):
     session = SessionMaker()
     c_model = configuration_models.get_model(config_id)
     configurations = DatabaseInterface(c_model, session).get_all()
-
-    c_response = response.get_response(config_id)
-    items = []
-    for c in configurations:
-        items.append({
-            'key': c_response.get_key(c),
-            'data': c_response.get_data(c),
-            'active': c.active,
-        })
-
-    return jsonify(items)
+    configurations_as_dicts = [c.as_dict() for c in configurations]
+    for c in configurations_as_dicts:
+        enums_as_names(c)
+    return jsonify(configurations_as_dicts)
 
 
 app = Flask(__name__)
