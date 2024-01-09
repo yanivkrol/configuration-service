@@ -1,11 +1,9 @@
-from sqlalchemy import and_
 from sqlalchemy.orm import Session, Query
 
 from app.frontend.confiugration.google_active_postback_frontend import GoogleActivePostbackSelection
-from app.state_management import get_state, State
 from app.middleware.configuration import BaseConfigurationMiddleware
+from app.state_management import get_state, State
 from common.model.configuration import GoogleActivePostback
-from common.model.dim.account import Account
 from common.model.dim.site import Site
 from common.model.dim.vertical import Vertical
 
@@ -25,15 +23,6 @@ class GoogleActivePostbackMiddleware(BaseConfigurationMiddleware[GoogleActivePos
             traffic_join=selection.traffic_join,
             active=selection.active,
         )
-
-    def _to_display_dict(self, selection: GoogleActivePostbackSelection) -> dict:
-        return {
-            'account_name': selection.account.account_name,
-            'site_name': selection.site.name,
-            'vertical_name': selection.vertical.name,
-            'traffic_join': selection.traffic_join,
-            'active': selection.active,
-        }
 
     def _compose_query_for_display(self, session: Session) -> Query:
         return session.query(GoogleActivePostback, Site.name.label('site_name'), Vertical.name.label('vertical_name')) \

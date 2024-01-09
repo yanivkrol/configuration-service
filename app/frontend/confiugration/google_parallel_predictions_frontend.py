@@ -66,3 +66,11 @@ class GoogleParallelPredictionsFrontend(BaseConfigurationFrontend[GoogleParallel
                 active=True,
             )
         return None
+
+    def _to_display_dict(self, selection: GoogleParallelPredictionsSelection) -> dict:
+        return {
+            'account_name': selection.account.account_name,
+            'partner_name': selection.partner.name,
+            'deal_type': selection.deal_type,
+            'active': selection.active,
+        }

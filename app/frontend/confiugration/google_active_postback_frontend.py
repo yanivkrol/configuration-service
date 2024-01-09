@@ -4,8 +4,8 @@ import streamlit as st
 
 from app.frontend.confiugration import BaseConfigurationFrontend
 from app.frontend.confiugration import Selection
-from app.state_management import get_state, State
 from app.middleware.dim_service import dim_service
+from app.state_management import get_state, State
 from common.model.configuration.google_active_postback import TrafficJoin
 from common.model.dim.account import Account
 from common.model.dim.site import Site
@@ -76,3 +76,12 @@ class GoogleActivePostbackFrontend(BaseConfigurationFrontend[GoogleActivePostbac
                 active=True,
             )
         return None
+
+    def _to_display_dict(self, selection: GoogleActivePostbackSelection) -> dict:
+        return {
+            'account_name': selection.account.account_name,
+            'site_name': selection.site.name,
+            'vertical_name': selection.vertical.name,
+            'traffic_join': selection.traffic_join,
+            'active': selection.active,
+        }

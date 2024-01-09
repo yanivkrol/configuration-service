@@ -29,17 +29,6 @@ class BaseConfigurationMiddleware(ABC, Generic[S, T]):
     def to_database_object(self, selection: S) -> T:
         ...
 
-    def to_display_dataframe(self, selections: list[S]) -> pd.DataFrame:
-        return pd.DataFrame([self._to_display_dict(selection) for selection in selections])
-
-    @abstractmethod
-    def _to_display_dict(self, selection: S) -> dict:
-        """
-        This function should return a dict that has all the fields needed for display,
-        Similarly to the output of get_display_dataframe
-        """
-        ...
-
     @abstractmethod
     def _compose_query_for_display(self, session: Session) -> Query:
         ...

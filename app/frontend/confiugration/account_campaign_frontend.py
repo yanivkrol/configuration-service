@@ -66,3 +66,10 @@ class AccountCampaignFrontend(BaseConfigurationFrontend[AccountCampaignSelection
                 active=True,
             )
         return None
+
+    def _to_display_dict(self, selection: AccountCampaignSelection) -> dict:
+        return {
+            'account_name': selection.account.account_name,
+            'campaign_name': selection.campaign_mapping.campaign_name if selection.campaign_mapping else '__ALL__',
+            'active': selection.active,
+        }

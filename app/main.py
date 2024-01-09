@@ -241,7 +241,7 @@ def display_changes():
             """, unsafe_allow_html=True)
 
             if new_data:
-                new_configs_df = c_middleware.to_display_dataframe(new_data)
+                new_configs_df = c_frontend.to_display_dataframe(new_data)
                 st.write("New configurations:")
                 st.dataframe(
                     c_frontend.get_df_for_display(new_configs_df),

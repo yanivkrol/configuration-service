@@ -2,8 +2,8 @@ from sqlalchemy import and_
 from sqlalchemy.orm import Session, Query
 
 from app.frontend.confiugration.google_parallel_predictions_frontend import GoogleParallelPredictionsSelection
-from app.state_management import get_state, State
 from app.middleware.configuration import BaseConfigurationMiddleware
+from app.state_management import get_state, State
 from common.model.configuration.google_parallel_predictions import GoogleParallelPredictions
 from common.model.dim.account import Account
 from common.model.dim.partner import Partner
@@ -21,14 +21,6 @@ class GoogleParallelPredictionsMiddleware(BaseConfigurationMiddleware[GooglePara
             deal_type=selection.deal_type,
             active=selection.active,
         )
-
-    def _to_display_dict(self, selection: GoogleParallelPredictionsSelection) -> dict:
-        return {
-            'account_name': selection.account.account_name,
-            'partner_name': selection.partner.name,
-            'deal_type': selection.deal_type,
-            'active': selection.active,
-        }
 
     def _compose_query_for_display(self, session: Session) -> Query:
         return session.query(GoogleParallelPredictions, Account.account_name, Partner.name.label('partner_name')) \

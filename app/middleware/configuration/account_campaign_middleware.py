@@ -29,13 +29,6 @@ class AccountCampaignMiddleware(BaseConfigurationMiddleware[AccountCampaignSelec
             active=selection.active,
         )
 
-    def _to_display_dict(self, selection: AccountCampaignSelection) -> dict:
-        return {
-            'account_name': selection.account.account_name,
-            'campaign_name': selection.campaign_mapping.campaign_name if selection.campaign_mapping else '__ALL__',
-            'active': selection.active,
-        }
-
     def _compose_query_for_display(self, session: Session) -> Query:
         model_type = self.get_model_type()
         return session.query(model_type, Account.account_name, AccountCampaignMapping.campaign_name) \
